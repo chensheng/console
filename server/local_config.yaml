@@ -1,0 +1,4 @@
+server:
+  apiServer:
+    url: http://localhost:9090
+    wsUrl: ws://localhost:9090
