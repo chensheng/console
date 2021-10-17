@@ -96,7 +96,7 @@ class DevOpsAppListLayout extends Component {
         <div className="ks-page-side">
           <Selector
             type="devops"
-            title={t('DevOps Project')}
+            title={t('DevOps应用')}
             detail={detail}
             onChange={this.handleChange}
             workspace={this.workspace}

@@ -1,6 +1,7 @@
 import { getIndexRoute } from 'utils/router.config'
 
 import Layout from '../containers/layout'
+import Overview from '../containers/Overview'
 import DevopsAppsListLayout from '../containers/Base/List'
 import PipelinesList from '../containers/Pipelines/PipelinesList'
 import BaseInfo from '../containers/BaseInfo'
@@ -22,7 +23,7 @@ export default [
         path: '',
         component: DevopsAppsListLayout,
         routes: [
-          { path: `${PATH}/overview`, component: PipelinesList, exact: true },
+          { path: `${PATH}/overview`, component: Overview, exact: true },
           { path: `${PATH}/base-info`, component: BaseInfo, exact: true },
           { path: `${PATH}/roles`, component: Roles, exact: true },
           { path: `${PATH}/members`, component: Members, exact: true },
