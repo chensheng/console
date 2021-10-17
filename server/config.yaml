@@ -299,7 +299,10 @@ client:
             - { name: roles, title: Workspace Roles }
             - { name: members, title: Workspace Members }
             - { name: groups, title: Workspace Groups }
-
+        - name: devopsapps
+          title: 'DevOps应用'
+          icon: project
+          skipAuth: true 
   # apps manage page navigations
   manageAppNavs:
     - cate: "apps"
@@ -453,6 +456,20 @@ client:
     - cate: ""
       items:
         - { name: pipelines, title: Pipelines, icon: application }
+        - name: management
+          title: DEVOPS_PROJECT_MANAGEMENT
+          icon: cogwheel
+          open: true
+          children:
+            - { name: base-info, title: Basic Info, skipAuth: true }
+            - { name: credentials, title: Credentials }
+            - { name: roles, title: DEVOPS_PROJECT_ROLES }
+            - { name: members, title: DEVOPS_PROJECT_MEMBERS }
+
+  devopsappsNavs:
+    - cate: ""
+      items:
+        - { name: pipelines, title: Pipelines, icon: application, skipAuth: true}
         - name: management
           title: DEVOPS_PROJECT_MANAGEMENT
           icon: cogwheel

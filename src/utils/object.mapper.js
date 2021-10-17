@@ -1068,6 +1068,21 @@ const DevOpsMapper = item => {
   }
 }
 
+const DevOpsAppsMapper = item => {
+  const phase = get(item, 'status.phase')
+  const deletionTimestamp = get(item, 'metadata.deletionTimestamp')
+
+  return {
+    ...getBaseInfo(item),
+    devopsapp: get(item, 'metadata.name'),
+    workspace: get(item, 'metadata.labels["kubesphere.io/workspace"]'),
+    namespace: get(item, 'status.adminNamespace'),
+    spec: get(item, 'spec'),
+    status: deletionTimestamp ? 'Terminating' : phase || 'Active',
+    _originData: getOriginData(item),
+  }
+}
+
 const PipelinesMapper = item => ({
   ...getBaseInfo(item),
 })
@@ -1209,6 +1224,7 @@ export default {
   federated: FederatedMapper,
   outputs: LogOutPutMapper,
   devops: DevOpsMapper,
+  devopsapps: DevOpsAppsMapper,
   dashboards: DashboardMapper,
   clusterdashboards: DashboardMapper,
   customresourcedefinitions: CRDMapper,

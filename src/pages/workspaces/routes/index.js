@@ -26,6 +26,7 @@ import Groups from '../containers/Groups'
 import Projects from '../containers/Projects'
 import FedProjects from '../containers/FedProjects'
 import DevOps from '../containers/DevOps'
+import DevOpsApps from '../containers/DevOpsApps'
 import Apps from '../containers/Apps'
 import Repos from '../containers/Repos'
 
@@ -54,6 +55,11 @@ export default [
       {
         path: `${PATH}/devops`,
         component: DevOps,
+        exact: true,
+      },
+      {
+        path: `${PATH}/devopsapps`,
+        component: DevOpsApps,
         exact: true,
       },
       {

@@ -47,7 +47,7 @@ export default class NavItem extends React.Component {
       return item.tabs.some(tab => this.checkSelect(tab))
     }
 
-    return current.startsWith(item.name)
+    return current == item.name || current.startsWith(`${item.name}/`)
   }
 
   handleOpen = () => {

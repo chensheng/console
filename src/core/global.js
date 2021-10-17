@@ -359,6 +359,34 @@ export default class GlobalValue {
     return this._cache_[`devops_${cluster}_${devops}_navs`]
   }
 
+  getDevOpsAppsNavs({ workspace, devopsapp }) {
+    // if (!get(globals.user, `devopsappsRules[${cluster}][${devops}]`)) {
+    //   return []
+    // }
+
+    if (!this._cache_[`devopsapps_${workspace}_${devopsapp}_navs`]) {
+      const navs = []
+
+      cloneDeep(globals.config.devopsappsNavs).forEach(nav => {
+        const filteredItems = nav.items.filter(item => {
+          // item.cluster = cluster
+          return this.checkNavItem(item, params =>
+            this.hasPermission({ ...params, workspace, devopsapp })
+          )
+        })
+
+        if (!isEmpty(filteredItems)) {
+          this.checkClusterVersionRequired(filteredItems)
+          navs.push({ ...nav, items: filteredItems })
+        }
+
+        this._cache_[`devopsapps_${workspace}_${devopsapp}_navs`] = navs
+      })
+    }
+
+    return this._cache_[`devopsapps_${workspace}_${devopsapp}_navs`]
+  }
+
   getPlatformSettingsNavs() {
     if (!this._cache_['platformSettingsNavs']) {
       const navs = []

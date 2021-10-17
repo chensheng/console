@@ -223,6 +223,10 @@ export function withDevOpsList(options) {
   return withList({ injectStores: ['rootStore', 'devopsStore'], ...options })
 }
 
+export function withDevOpsAppList(options) {
+  return withList({ injectStores: ['rootStore', 'devopsappStore'], ...options })
+}
+
 export class ListPage extends React.Component {
   get store() {
     return this.props.store

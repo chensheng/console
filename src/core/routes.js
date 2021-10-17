@@ -47,6 +47,9 @@ const FederatedProjects = lazy(() =>
 const DevOps = lazy(() =>
   import(/* webpackChunkName: "devops" */ 'devops/App.jsx')
 )
+const DevOpsApps = lazy(() =>
+  import(/* webpackChunkName:"devopsapps" */ 'devopsapps/App.jsx')
+)
 const App = lazy(() => import(/* webpackChunkName: "apps" */ 'apps/App.jsx'))
 
 export default [
@@ -71,6 +74,10 @@ export default [
       {
         path: '/:workspace/clusters/:cluster/devops/:devops',
         component: DevOps,
+      },
+      {
+        path: '/:workspace/devopsapps/:devopsapp',
+        component: DevOpsApps,
       },
       {
         path: '/:workspace/federatedprojects/:namespace',
