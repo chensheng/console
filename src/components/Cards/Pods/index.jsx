@@ -110,7 +110,7 @@ export default class PodsCard extends React.Component {
     if (url && namespace && labelSelector) {
       this.websocket.watch(url)
 
-      this.fetchData = throttle(this.fetchData, 2000)
+      this.fetchData = throttle(this.fetchData, 200)
 
       this.disposer = reaction(
         () => this.websocket.message,
@@ -215,6 +215,7 @@ export default class PodsCard extends React.Component {
   fetchData = async ({ noMetrics, silent, ...params } = {}) => {
     if (isEmpty(this.state.params)) {
       this.store.list.isLoading = false
+      this.store.list.data = []
       return
     }
 

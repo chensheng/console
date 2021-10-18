@@ -42,7 +42,7 @@ class Overview extends React.Component {
           <Icon name="strategy-group" size={40} />
           <div className={styles.item}>
             <div>{getDisplayName(detail)}</div>
-            <p>{t('DevOps Project')}</p>
+            <p>{t('应用')}</p>
           </div>
           <div className={styles.item}>
             <div>
@@ -60,10 +60,41 @@ class Overview extends React.Component {
             </div>
             <p>{t('Created Time')}</p>
           </div>
+        </div>
+      </Panel>
+    )
+  }
+
+  renderGitInfo() {
+    const detail = this.store.data
+
+    return (
+      <Panel className={styles.wrapper} title={t('代码仓库')}>
+        <div className={styles.header}>
+          <Icon name="git" size={22} />
           <div className={styles.item}>
             <div>{detail.spec.git.repo}</div>
-            <p>{t('GIT仓库')}</p>
           </div>
+        </div>
+      </Panel>
+    )
+  }
+
+  renderEnvironmentInfo() {
+    const { environments } = this.store.data.spec
+
+    return (
+      <Panel className={styles.wrapper} title={t('环境')}>
+        <div className={styles.header}>
+          <Icon name="strategy-group" size={40} />
+          {environments.map(env => (
+            <div className={styles.item}>
+              <div>
+                <Link to={`/${this.workspace}/devopsapps/${this.devopsapp}/environments/${env.name}`}>{env.name}</Link>
+              </div>
+              <p>{t(`${env.desc}`)}</p>
+            </div>
+          ))}
         </div>
       </Panel>
     )
@@ -81,6 +112,8 @@ class Overview extends React.Component {
           module={this.module}
         />
         {this.renderBaseInfo()}
+        {this.renderGitInfo()}
+        {this.renderEnvironmentInfo()}
       </div>
     )
   }

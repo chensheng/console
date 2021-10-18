@@ -1,4 +1,4 @@
 server:
   apiServer:
-    url: http://localhost:9090
-    wsUrl: ws://localhost:9090
+    url: http://10.92.35.25:31413
+    wsUrl: ws://10.92.35.25:31413
