@@ -10,8 +10,6 @@ import { isEmpty } from 'lodash'
 
 import WorkloadStore from 'stores/workload'
 import ServiceStore from 'stores/service'
-import DevopsStore from 'stores/devops'
-import PipelineStore from 'stores/devops/pipelines'
 
 import styles from './index.scss'
 
@@ -20,8 +18,6 @@ import styles from './index.scss'
 class Environment extends React.Component {
   workloadStore = new WorkloadStore('deployments')
   serviceStore = new ServiceStore();
-  devopsStore = new DevopsStore();
-  pipelineStore = new PipelineStore();
 
   get routing() {
     return this.props.rootStore.routing
@@ -62,10 +58,6 @@ class Environment extends React.Component {
     return this.envInfo.cluster
   }
 
-  get devops() {
-    return this.devopsStore.devops
-  }
-
   get pipeline() {
     return `pipeline-${this.envInfo.name}`
   }
@@ -75,7 +67,6 @@ class Environment extends React.Component {
     this.init()
     this.fetchServiceData()
     this.fetchWorkloadData()
-    this.fetchDevopsData()
   }
 
   componentDidUpdate(prevProps) {
@@ -84,7 +75,6 @@ class Environment extends React.Component {
       this.workloadStore.detail = {}
       this.fetchServiceData()
       this.fetchWorkloadData()
-      this.fetchDevopsData()
     }
   }
 
@@ -118,22 +108,6 @@ class Environment extends React.Component {
     await this.workloadStore.fetchDetail(params)
   }
 
-  fetchDevopsData = async () => {
-    const params = {
-      cluster: this.envInfo.cluster,
-      workspace: this.workspace,
-      name: this.devopsapp
-    }
-    await this.devopsStore.fetchDetailByName(params)
-
-    const activityParams = {
-      name: `pipeline-${this.envInfo.name}`,
-      devops: this.devopsStore.devops,
-      cluster: this.envInfo.cluster,
-    }
-    await this.pipelineStore.getActivities(activityParams)
-  }
-
   renderService() {
     const detail = this.serviceStore.detail
 
@@ -159,9 +133,7 @@ class Environment extends React.Component {
   }
 
   renderDevops() {
-    const { activityList, detail } = this.pipelineStore
-    const prefix = `/${this.workspace}/clusters/${this.cluster}/devops/${this.devops}/pipelines/${this.pipeline}`
-    return (<Pipeline title={`发布记录`} prefix={prefix} detail={detail} activityList={activityList}/>)
+    return <Pipeline title={`发布记录`} workspace={this.workspace} cluster={this.cluster} devopsName={this.devopsapp} pipeline={this.pipeline}/>
   }
 
   render() {

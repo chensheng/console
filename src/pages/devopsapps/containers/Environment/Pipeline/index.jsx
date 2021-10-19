@@ -16,46 +16,239 @@
  * along with KubeSphere Console.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
+import React from 'react'
 import PropTypes from 'prop-types'
+import { get, omit, debounce, isArray, isUndefined, isEmpty } from 'lodash'
+import { Link } from 'react-router-dom'
 import { toJS } from 'mobx'
-import { Button } from '@kube-design/components'
-import { Panel } from 'components/Base'
-import Table from 'components/Tables/List'
-import EmptyCard from 'devops/components/Cards/EmptyCard'
-import Status from 'devops/components/Status'
+import { parse } from 'qs'
+import { observer, inject } from 'mobx-react'
+import {
+  Button,
+  Notify,
+  Level,
+  LevelLeft,
+  LevelRight,
+} from '@kube-design/components'
 
 import { getLocalTime, formatUsedTime } from 'utils'
-import { getPipelineStatus } from 'utils/status'
-import { get, isEmpty, omit, isArray } from 'lodash'
 
-export default class Pipeline extends Component {
+import Status from 'devops/components/Status'
+import { getPipelineStatus } from 'utils/status'
+import { ReactComponent as ForkIcon } from 'assets/fork.svg'
+
+import { trigger } from 'utils/action'
+import Table from 'components/Tables/List'
+import EmptyCard from 'devops/components/Cards/EmptyCard'
+import { Panel } from 'components/Base'
+
+import styles from './index.scss'
+
+import DevopsStore from 'stores/devops'
+import PipelineStore from 'stores/devops/pipelines'
+
+@inject('rootStore')
+@observer
+@trigger
+export default class Pipeline extends React.Component {
   static propTypes = {
     title: PropTypes.string,
-    detail: PropTypes.object,
-    activityList: PropTypes.object,
-    branch: PropTypes.string,
-    prefix: PropTypes.string
+    workspace: PropTypes.string,
+    cluster: PropTypes.string,
+    devopsName: PropTypes.string,
+    pipeline: PropTypes.string,
   }
 
   static defaultProps = {
     title: '',
-    detail: {},
-    activityList: {},
-    branch: null,
-    prefix: ''
+    workspace: null,
+    cluster: null,
+    devopsName: null,
+    pipeline: null,
+  }
+
+  store = new PipelineStore()
+
+  devopsStore = new DevopsStore()
+
+  refreshTimer = setInterval(() => this.refreshHandler(), 4000)
+
+  get enabledActions() {
+    return globals.app.getActions({
+      module: 'pipelines',
+      cluster: this.props.cluster,
+      devops: this.devopsStore.devops,
+    })
+  }
+
+  get isRuning() {
+    const data = get(toJS(this.store), 'activityList.data', [])
+    const runingData = data.filter(
+      item => item.state !== 'FINISHED' && item.state !== 'PAUSED'
+    )
+    return !isEmpty(runingData)
+  }
+
+  get isAtBranchDetailPage() {
+    return this.props.match&&this.props.match.params&&this.props.match.params.branch
   }
 
   get prefix() {
-    return this.props.prefix
+    const {  workspace, cluster, pipeline } = this.props;
+    return `/${workspace}/clusters/${cluster}/devops/${this.devopsStore.devops}/pipelines/${pipeline}`
+  }
+
+  get routing() {
+    return this.props.rootStore.routing
+  }
+
+  componentDidMount() {
+    localStorage.setItem('pipeline-activity-detail-referrer', location.pathname)
+    this.fetchDevopsData()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.refreshTimer === null && this.isRuning) {
+      this.refreshTimer = setInterval(() => this.refreshHandler(), 4000)
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.refreshTimer)
+    this.unsubscribe && this.unsubscribe()
+  }
+
+  getData = () => {
+    const query = parse(location.search.slice(1))
+
+    const activitiesParams = {
+      ...query,
+      name: this.props.pipeline,
+      devops: this.devopsStore.devops,
+      cluster: this.props.cluster,
+    }
+
+    this.store.getActivities(activitiesParams)
+  }
+
+  fetchDevopsData = async () => {
+    const params = {
+      workspace: this.props.workspace,
+      cluster: this.props.cluster,
+      name: this.props.devopsName
+    }
+    await this.devopsStore.fetchDetailByName(params)
+    this.getData()
+  }
+
+  refreshHandler = () => {
+    if (this.isRuning) {
+      this.getData()
+    } else {
+      clearInterval(this.refreshTimer)
+      this.refreshTimer = null
+    }
+  }
+
+  handleRunning = debounce(async () => {
+    const { detail } = this.store
+    const isMultibranch = detail.branchNames
+    const params = {
+     devops: this.devopsStore.devops,
+      cluster: this.props.cluster,
+      name: this.props.pipeline
+    }
+    const hasParameters = detail.parameters && detail.parameters.length
+
+    if (isMultibranch || hasParameters) {
+      this.trigger('pipeline.params', {
+        devops: this.devopsStore.devops,
+        cluster: this.props.cluster,
+        params,
+        branches: toJS(detail.branchNames),
+        parameters: toJS(detail.parameters),
+        success: () => {
+          Notify.success({ content: `${t('Run Start')}` })
+          this.handleFetch()
+        },
+      })
+    } else {
+      Notify.success({ content: `${t('Run Start')}` })
+      await this.store.runBranch(params)
+      this.handleFetch()
+    }
+  }, 500)
+
+  handleFetch = (params, refresh) => {
+    this.routing.query(params, refresh)
+  }
+
+  handleReplay = record => async () => {
+    const url = `devops/${this.devopsStore.devops}/pipelines/${this.props.pipeline}${this.getActivityDetailLinks(record)}`
+
+    await this.store.handleActivityReplay({ url, cluster: this.props.cluster, })
+
+    Notify.success({ content: `${t('Run Start')}` })
+    this.handleFetch()
+  }
+
+  handleScanRepository = async () => {
+    const { params } = this.props.match
+    const { detail } = this.store
+
+    await this.store.scanRepository({
+      devops: this.devopsStore.devops,
+      name: detail.name,
+      cluster: this.props.cluster,
+    })
+
+    const detailParams = {
+      ...params,
+      devops: this.devopsStore.devops,
+      cluster: this.props.cluster,
+      name: detail.name,
+    }
+    this.store.fetchDetail(detailParams)
+
+    Notify.success({
+      content: t('Scan repo success'),
+    })
+
+    this.handleFetch()
+  }
+
+  handleStop = record => async () => {
+    const url = `devops/${this.devopsStore.devops}/pipelines/${this.props.pipeline}${this.getActivityDetailLinks(record)}`
+
+    await this.store.handleActivityStop({
+      url,
+      cluster: this.props.cluster,
+    })
+
+    Notify.success({
+      content: t('Stop Job Successfully, Status updated later'),
+    })
+
+    this.handleFetch()
+  }
+
+  getActivityDetailLinks = record => {
+    const matchArray = get(record, '_links.self.href', '').match(
+      /\/pipelines\/\S*?(?=\/)\/branches\/(\S*?(?=\/)?)\//
+    )
+    if (isArray(matchArray)) {
+      return `/branches/${encodeURIComponent(record.pipeline)}/runs/${
+        record.id
+      }`
+    }
+    return `/runs/${record.id}`
   }
 
   getRunhref = record => {
     const matchArray = get(record, '_links.self.href', '').match(
       /\/pipelines\/\S*?(?=\/)\/branches\/(\S*?(?=\/)?)\//
     )
-    if (isArray(matchArray)) {
+    if (isArray(matchArray) && !this.isAtBranchDetailPage) {
       return `${this.prefix}/branch/${record.pipeline}/run/${record.id}`
     }
     return `${this.prefix}/run/${record.id}`
@@ -88,7 +281,7 @@ export default class Pipeline extends Component {
       width: '10%',
       render: commitId => (commitId && commitId.slice(0, 6)) || '-',
     },
-    ...(this.props.branch
+    ...(this.props.match&&this.props.match.params&&this.props.match.params.branch
       ? []
       : [
           {
@@ -139,58 +332,113 @@ export default class Pipeline extends Component {
       key: 'action',
       render: record => {
         if (
-          (record.branch && !record.commitId) 
-          //||!this.enabledActions.includes('edit')
+          (record.branch && !record.commitId) ||
+          !this.enabledActions.includes('edit')
         ) {
           return null
         }
         if (record.state === 'FINISHED') {
           return (
             <Button
-              //onClick={this.handleReplay(record)}
+              onClick={this.handleReplay(record)}
               icon="restart"
               type="flat"
             />
           )
         }
         return (
-          <Button 
-          //onClick={this.handleStop(record)} 
-          icon="stop" type="flat" />
+          <Button onClick={this.handleStop(record)} icon="stop" type="flat" />
         )
       },
     },
   ]
 
   getActions = () =>
-    [
+    this.isAtBranchDetailPage
+      ? null
+      : [
           {
             type: 'control',
             key: 'run',
             text: t('Run'),
             action: 'edit',
-            //onClick: this.handleRunning,
+            onClick: this.handleRunning,
           },
         ]
+  
+    renderFooter = () => {
+    const { detail, activityList } = this.store
+    const { total, limit } = activityList
+    const isMultibranch = detail.branchNames
+
+    if (!isMultibranch || this.isAtBranchDetailPage) {
+      return null
+    }
+
+    if (total < limit) {
+      return null
+    }
+
+    return () => (
+      <Level>
+        {!isUndefined(total) && (
+          <LevelLeft>{t('TOTAL_ITEMS', { num: total })}</LevelLeft>
+        )}
+        <LevelRight>
+          <Link className={styles.clickable} to="./branch">
+            {t('PIPELINES_FOOTER_SEE_MORE')}
+          </Link>
+        </LevelRight>
+      </Level>
+    )
+  }
+  
+  renderFooter = () => {
+    const { detail, activityList } = this.store
+    const { total, limit } = activityList
+    const isMultibranch = detail.branchNames
+
+    if (!isMultibranch || this.isAtBranchDetailPage) {
+      return null
+    }
+
+    if (total < limit) {
+      return null
+    }
+
+    return () => (
+      <Level>
+        {!isUndefined(total) && (
+          <LevelLeft>{t('TOTAL_ITEMS', { num: total })}</LevelLeft>
+        )}
+        <LevelRight>
+          <Link className={styles.clickable} to="./branch">
+            {t('PIPELINES_FOOTER_SEE_MORE')}
+          </Link>
+        </LevelRight>
+      </Level>
+    )
+  }
 
   render() {
-    const { title, activityList } = this.props
+    const { activityList } = this.store
     const { data, isLoading, total, page, limit, filters } = activityList
     const omitFilters = omit(filters, 'page', 'workspace')
     const pagination = { total, page, limit }
     const isEmptyList = total === 0
 
     if (isEmptyList) {
-      const runnable = true
-      const isMultibranch = false
-      const isBranchInRoute = false
+      const { detail } = this.store
+      const runnable = this.enabledActions.includes('edit')
+      const isMultibranch = detail.branchNames
+      const isBranchInRoute = get(this.props, 'match.params.branch')
 
       if (isMultibranch && !isEmpty(isMultibranch) && !isBranchInRoute) {
         return (
-          <Panel title={t(title)}>
+          <Panel title={t(this.props.title)}>
             <EmptyCard desc={t('Pipeline config file not found')}>
               {runnable && (
-                <Button type="control">
+                <Button type="control" onClick={this.handleScanRepository}>
                   {t('Scan Repository')}
                 </Button>
               )}
@@ -200,14 +448,14 @@ export default class Pipeline extends Component {
       }
 
       return (
-        <Panel title={t(title)}>
-        <EmptyCard desc={t('暂无发布记录')}>
-          {runnable && (
-            <Button type="control">
-              {t('马上发布')}
-            </Button>
-          )}
-        </EmptyCard>
+        <Panel title={t(this.props.title)}>
+          <EmptyCard desc={t('ACTIVITY_EMPTY_TIP')}>
+            {runnable && (
+              <Button type="control" onClick={this.handleRunning}>
+                {t('Run Pipeline')}
+              </Button>
+            )}
+          </EmptyCard>
         </Panel>
       )
     }
@@ -215,7 +463,7 @@ export default class Pipeline extends Component {
     const rowKey = get(data[0], 'time') ? 'time' : 'endTime'
 
     return (
-      <Panel title={t(title)}>
+      <Panel title={this.props.title}>
         <Table
           data={toJS(data)}
           columns={this.getColumns()}
@@ -225,10 +473,9 @@ export default class Pipeline extends Component {
           isLoading={isLoading}
           onFetch={this.handleFetch}
           actions={this.getActions()}
-          //footer={this.renderFooter()}
+          footer={this.renderFooter()}
           hideSearch
-          hideHeader
-          enabledActions={['edit']}
+          enabledActions={this.enabledActions}
         />
       </Panel>
     )
