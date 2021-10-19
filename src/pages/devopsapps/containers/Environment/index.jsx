@@ -3,13 +3,13 @@ import { observer, inject } from 'mobx-react'
 import { Panel } from 'components/Base'
 import Banner from 'components/Cards/Banner'
 import PodsCard from 'components/Cards/Pods'
-import Service from './Service'
-import Pipeline from './Pipeline'
 
 import { isEmpty } from 'lodash'
 
 import WorkloadStore from 'stores/workload'
 import ServiceStore from 'stores/service'
+import Pipeline from './Pipeline'
+import Service from './Service'
 
 import styles from './index.scss'
 
@@ -17,7 +17,8 @@ import styles from './index.scss'
 @observer
 class Environment extends React.Component {
   workloadStore = new WorkloadStore('deployments')
-  serviceStore = new ServiceStore();
+
+  serviceStore = new ServiceStore()
 
   get routing() {
     return this.props.rootStore.routing
@@ -46,8 +47,8 @@ class Environment extends React.Component {
   get envInfo() {
     const { environments } = this.store.data.spec
     const currentEnv = this.environment
-    for(let env of environments) {
-      if(env.name === currentEnv) {
+    for (const env of environments) {
+      if (env.name === currentEnv) {
         return env
       }
     }
@@ -70,7 +71,9 @@ class Environment extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.match.params.environment !== this.props.match.params.environment) {
+    if (
+      prevProps.match.params.environment !== this.props.match.params.environment
+    ) {
       this.serviceStore.detail = {}
       this.workloadStore.detail = {}
       this.fetchServiceData()
@@ -83,7 +86,7 @@ class Environment extends React.Component {
       cluster: this.envInfo.cluster,
       workspace: this.workspace,
       namespace: `${this.envInfo.name}-${this.devopsapp}`,
-      name: this.devopsapp
+      name: this.devopsapp,
     }
     await this.props.rootStore.getRules(params)
   }
@@ -93,7 +96,7 @@ class Environment extends React.Component {
       cluster: this.envInfo.cluster,
       workspace: this.workspace,
       namespace: `${this.envInfo.name}-${this.devopsapp}`,
-      name: this.devopsapp
+      name: this.devopsapp,
     }
     await this.serviceStore.fetchDetail(params)
   }
@@ -103,7 +106,7 @@ class Environment extends React.Component {
       cluster: this.envInfo.cluster,
       workspace: this.workspace,
       namespace: `${this.envInfo.name}-${this.devopsapp}`,
-      name: this.devopsapp
+      name: this.devopsapp,
     }
     await this.workloadStore.fetchDetail(params)
   }
@@ -113,15 +116,18 @@ class Environment extends React.Component {
 
     return (
       <Panel title={t('Service')}>
-        {isEmpty(detail) ? (<div className={styles.empty}>{t('RESOURCE_NOT_FOUND')}</div>)
-        : <Service detail={detail} />}
+        {isEmpty(detail) ? (
+          <div className={styles.empty}>{t('RESOURCE_NOT_FOUND')}</div>
+        ) : (
+          <Service detail={detail} />
+        )}
       </Panel>
     )
   }
 
   renderPods() {
     const detail = this.workloadStore.detail
-    if(isEmpty(detail)) {
+    if (isEmpty(detail)) {
       return (
         <Panel title={t('Pods')}>
           <div className={styles.empty}>{t('RESOURCE_NOT_FOUND')}</div>
@@ -129,24 +135,36 @@ class Environment extends React.Component {
       )
     }
 
-    return <PodsCard title={`Pods`} prefix={`/${this.workspace}/clusters/${this.envInfo.cluster}`} detail={detail} hideHeader={true} hideFooter={true} />
+    return (
+      <PodsCard
+        title={`Pods`}
+        prefix={`/${this.workspace}/clusters/${this.envInfo.cluster}`}
+        detail={detail}
+        hideHeader={true}
+        hideFooter={true}
+      />
+    )
   }
 
   renderDevops() {
-    return <Pipeline title={`发布记录`} workspace={this.workspace} cluster={this.cluster} devopsName={this.devopsapp} pipeline={this.pipeline}/>
+    return (
+      <Pipeline
+        title={`发布记录`}
+        workspace={this.workspace}
+        cluster={this.cluster}
+        devopsName={this.devopsapp}
+        pipeline={this.pipeline}
+      />
+    )
   }
 
   render() {
-    const { data } =this.store
+    const { data } = this.store
     const envInfo = this.envInfo
 
     return (
       <div>
-        <Banner
-          title={t(`${envInfo.desc}`)}
-          icon="cdn"
-          module={this.module}
-        />
+        <Banner title={t(`${envInfo.desc}`)} icon="cdn" module={this.module} />
         {this.renderService()}
         {this.renderPods()}
         {this.renderDevops()}

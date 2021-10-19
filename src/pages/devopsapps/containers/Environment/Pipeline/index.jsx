@@ -42,10 +42,9 @@ import Table from 'components/Tables/List'
 import EmptyCard from 'devops/components/Cards/EmptyCard'
 import { Panel } from 'components/Base'
 
-import styles from './index.scss'
-
 import DevopsStore from 'stores/devops'
 import PipelineStore from 'stores/devops/pipelines'
+import styles from './index.scss'
 
 @inject('rootStore')
 @observer
@@ -90,11 +89,15 @@ export default class Pipeline extends React.Component {
   }
 
   get isAtBranchDetailPage() {
-    return this.props.match&&this.props.match.params&&this.props.match.params.branch
+    return (
+      this.props.match &&
+      this.props.match.params &&
+      this.props.match.params.branch
+    )
   }
 
   get prefix() {
-    const {  workspace, cluster, pipeline } = this.props;
+    const { workspace, cluster, pipeline } = this.props
     return `/${workspace}/clusters/${cluster}/devops/${this.devopsStore.devops}/pipelines/${pipeline}`
   }
 
@@ -135,7 +138,7 @@ export default class Pipeline extends React.Component {
     const params = {
       workspace: this.props.workspace,
       cluster: this.props.cluster,
-      name: this.props.devopsName
+      name: this.props.devopsName,
     }
     await this.devopsStore.fetchDetailByName(params)
     this.getData()
@@ -154,9 +157,9 @@ export default class Pipeline extends React.Component {
     const { detail } = this.store
     const isMultibranch = detail.branchNames
     const params = {
-     devops: this.devopsStore.devops,
+      devops: this.devopsStore.devops,
       cluster: this.props.cluster,
-      name: this.props.pipeline
+      name: this.props.pipeline,
     }
     const hasParameters = detail.parameters && detail.parameters.length
 
@@ -184,9 +187,11 @@ export default class Pipeline extends React.Component {
   }
 
   handleReplay = record => async () => {
-    const url = `devops/${this.devopsStore.devops}/pipelines/${this.props.pipeline}${this.getActivityDetailLinks(record)}`
+    const url = `devops/${this.devopsStore.devops}/pipelines/${
+      this.props.pipeline
+    }${this.getActivityDetailLinks(record)}`
 
-    await this.store.handleActivityReplay({ url, cluster: this.props.cluster, })
+    await this.store.handleActivityReplay({ url, cluster: this.props.cluster })
 
     Notify.success({ content: `${t('Run Start')}` })
     this.handleFetch()
@@ -218,7 +223,9 @@ export default class Pipeline extends React.Component {
   }
 
   handleStop = record => async () => {
-    const url = `devops/${this.devopsStore.devops}/pipelines/${this.props.pipeline}${this.getActivityDetailLinks(record)}`
+    const url = `devops/${this.devopsStore.devops}/pipelines/${
+      this.props.pipeline
+    }${this.getActivityDetailLinks(record)}`
 
     await this.store.handleActivityStop({
       url,
@@ -281,7 +288,9 @@ export default class Pipeline extends React.Component {
       width: '10%',
       render: commitId => (commitId && commitId.slice(0, 6)) || '-',
     },
-    ...(this.props.match&&this.props.match.params&&this.props.match.params.branch
+    ...(this.props.match &&
+    this.props.match.params &&
+    this.props.match.params.branch
       ? []
       : [
           {
@@ -365,8 +374,8 @@ export default class Pipeline extends React.Component {
             onClick: this.handleRunning,
           },
         ]
-  
-    renderFooter = () => {
+
+  renderFooter = () => {
     const { detail, activityList } = this.store
     const { total, limit } = activityList
     const isMultibranch = detail.branchNames
@@ -392,7 +401,7 @@ export default class Pipeline extends React.Component {
       </Level>
     )
   }
-  
+
   renderFooter = () => {
     const { detail, activityList } = this.store
     const { total, limit } = activityList
