@@ -206,6 +206,28 @@ export default class DevOpsStore extends Base {
     )
   }
 
+  async fetchDetailByName({ cluster, workspace, name}) {
+    const params = { limit: 1, page: 1, name }
+
+    const result =
+      (await request
+        .get(this.getBaseUrlV3({ cluster, workspace }), params)
+        .catch(() => {})) || {}
+
+    const items = Array.isArray(get(result, 'items'))
+      ? get(result, 'items')
+      : []
+    
+    const item = items.length?items[0]:null
+    this.itemDetail = item
+    const data = { cluster, ...this.mapper(item) }
+    this.devopsName = data.name
+    this.devops = data.devops
+    data.workspace = data.workspace || workspace
+    this.data = data
+    this.detail = data
+  }
+
   @action
   async fetchDetail({ cluster, devops, workspace }) {
     const result = await request.get(

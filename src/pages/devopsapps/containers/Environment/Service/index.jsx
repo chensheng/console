@@ -19,11 +19,19 @@
 import React, { Component } from 'react'
 import { Icon, Tooltip } from '@kube-design/components'
 
-import { isEmpty } from 'lodash'
+import { isEmpty, toLower } from 'lodash'
 
 import styles from './index.scss'
 
 export default class Service extends Component {
+
+  formatServiceAddr = (namespace, serviceName, portInfo) => {
+    const protocol = (portInfo.name.indexOf('-') !== -1) ? toLower(portInfo.name.split('-')[0]) : 'http'
+    const host = `${serviceName}.${namespace}`
+    const port = (portInfo.port===80 || portInfo.port===443) ? '' : `:${portInfo.port}`
+    return `${protocol}://${host}${port}`
+  }
+
   render() {
     const { detail } = this.props
 
@@ -35,6 +43,13 @@ export default class Service extends Component {
       <div className={styles.portsWrapper}>
         {detail.ports.map((port, index) => (
           <div key={index} className={styles.ports}>
+            <Icon name="dns" size={40} />
+            <div className={styles.dns}>
+              <p>
+                <strong>{this.formatServiceAddr(detail.namespace, detail.name, port)}</strong>
+              </p>
+              <p>{t('服务地址')}</p>
+            </div>
             <Icon name="pod" size={40} />
             <div className={styles.port}>
               <p>
@@ -60,12 +75,6 @@ export default class Service extends Component {
                   </p>
                   <div>
                     {t('Node Port')}
-                    <Tooltip
-                      content={t('SERVICE_NODE_PORT_DESC')}
-                      trigger="hover"
-                    >
-                      <Icon name="information" />
-                    </Tooltip>
                   </div>
                 </div>
               </>

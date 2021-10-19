@@ -1,19 +1,17 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { toJS } from 'mobx'
 import { observer, inject } from 'mobx-react'
-import { Icon } from '@kube-design/components'
 import { Panel } from 'components/Base'
 import Banner from 'components/Cards/Banner'
 import PodsCard from 'components/Cards/Pods'
-import Ports from 'projects/containers/Services/Detail/Ports'
 import Service from './Service'
+import Pipeline from './Pipeline'
 
-import { getDisplayName, getLocalTime } from 'utils'
 import { isEmpty } from 'lodash'
 
 import WorkloadStore from 'stores/workload'
 import ServiceStore from 'stores/service'
+import DevopsStore from 'stores/devops'
+import PipelineStore from 'stores/devops/pipelines'
 
 import styles from './index.scss'
 
@@ -22,6 +20,8 @@ import styles from './index.scss'
 class Environment extends React.Component {
   workloadStore = new WorkloadStore('deployments')
   serviceStore = new ServiceStore();
+  devopsStore = new DevopsStore();
+  pipelineStore = new PipelineStore();
 
   get routing() {
     return this.props.rootStore.routing
@@ -58,9 +58,24 @@ class Environment extends React.Component {
     return {}
   }
 
+  get cluster() {
+    return this.envInfo.cluster
+  }
+
+  get devops() {
+    return this.devopsStore.devops
+  }
+
+  get pipeline() {
+    return `pipeline-${this.envInfo.name}`
+  }
+
   componentDidMount() {
+    localStorage.setItem('pipeline-activity-detail-referrer', location.pathname)
+    this.init()
     this.fetchServiceData()
     this.fetchWorkloadData()
+    this.fetchDevopsData()
   }
 
   componentDidUpdate(prevProps) {
@@ -69,7 +84,18 @@ class Environment extends React.Component {
       this.workloadStore.detail = {}
       this.fetchServiceData()
       this.fetchWorkloadData()
+      this.fetchDevopsData()
     }
+  }
+
+  init = async () => {
+    const params = {
+      cluster: this.envInfo.cluster,
+      workspace: this.workspace,
+      namespace: `${this.envInfo.name}-${this.devopsapp}`,
+      name: this.devopsapp
+    }
+    await this.props.rootStore.getRules(params)
   }
 
   fetchServiceData = async () => {
@@ -92,8 +118,24 @@ class Environment extends React.Component {
     await this.workloadStore.fetchDetail(params)
   }
 
-  renderPorts() {
-    const detail = toJS(this.serviceStore.detail)
+  fetchDevopsData = async () => {
+    const params = {
+      cluster: this.envInfo.cluster,
+      workspace: this.workspace,
+      name: this.devopsapp
+    }
+    await this.devopsStore.fetchDetailByName(params)
+
+    const activityParams = {
+      name: `pipeline-${this.envInfo.name}`,
+      devops: this.devopsStore.devops,
+      cluster: this.envInfo.cluster,
+    }
+    await this.pipelineStore.getActivities(activityParams)
+  }
+
+  renderService() {
+    const detail = this.serviceStore.detail
 
     return (
       <Panel title={t('Service')}>
@@ -113,7 +155,13 @@ class Environment extends React.Component {
       )
     }
 
-    return <PodsCard title={`Pods`} prefix={`/${this.workspace}/clusters/${this.envInfo.cluster}`} detail={detail} hideHeader={true} hideFooter={false} />
+    return <PodsCard title={`Pods`} prefix={`/${this.workspace}/clusters/${this.envInfo.cluster}`} detail={detail} hideHeader={true} hideFooter={true} />
+  }
+
+  renderDevops() {
+    const { activityList, detail } = this.pipelineStore
+    const prefix = `/${this.workspace}/clusters/${this.cluster}/devops/${this.devops}/pipelines/${this.pipeline}`
+    return (<Pipeline title={`发布记录`} prefix={prefix} detail={detail} activityList={activityList}/>)
   }
 
   render() {
@@ -123,13 +171,13 @@ class Environment extends React.Component {
     return (
       <div>
         <Banner
-          title={t(`${envInfo.name}`)}
+          title={t(`${envInfo.desc}`)}
           icon="cdn"
-          description={t(`${envInfo.desc}`)}
           module={this.module}
         />
-        {this.renderPorts()}
+        {this.renderService()}
         {this.renderPods()}
+        {this.renderDevops()}
       </div>
     )
   }

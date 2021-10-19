@@ -33,7 +33,7 @@ import {
   Artifacts,
 } from './index'
 
-const PATH = '/:workspace/clusters/:cluster/devops/:devops/pipelines/:name'
+const PATH = '/:workspace/clusters/:cluster/devopsapp/:devops/pipelines/:name'
 
 const BRANCH_PATH = `${PATH}/branch/:branch`
 

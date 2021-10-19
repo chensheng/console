@@ -24,6 +24,14 @@
     margin-right: 20px;
   }
 
+  .dns {
+    display: inline-block;
+    vertical-align: middle;
+    font-family: $font-family-id;
+    color: #5f708a;
+    margin-right: 40px;
+  }
+
   :global .icon {
     margin-right: 20px;
   }

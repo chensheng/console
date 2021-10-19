@@ -436,34 +436,32 @@ export default class PipelinesList extends React.Component {
         },
       ],
     }
-    return <div></div>
 
-    // return (
-    //   <Table
-    //     rowKey="name"
-    //     data={data}
-    //     columns={this.getColumns()}
-    //     filters={omitFilters}
-    //     pagination={pagination}
-    //     isLoading={isLoading}
-    //     onFetch={this.handleFetch}
-    //     onCreate={showCreate}
-    //     searchType="name"
-    //     tableActions={defaultTableProps}
-    //     itemActions={this.itemActions}
-    //     enabledActions={this.enabledActions}
-    //   />
-    // )
+    return (
+      <Table
+        rowKey="name"
+        data={data}
+        columns={this.getColumns()}
+        filters={omitFilters}
+        pagination={pagination}
+        isLoading={isLoading}
+        onFetch={this.handleFetch}
+        onCreate={showCreate}
+        searchType="name"
+        tableActions={defaultTableProps}
+        itemActions={this.itemActions}
+        enabledActions={this.enabledActions}
+      />
+    )
   }
 
   render() {
     const { bannerProps } = this.props
-    return <div></div>
-    // return (
-    //   <ListPage getData={this.getData} {...this.props}>
-    //     <Banner {...bannerProps} />
-    //     {this.renderContent()}
-    //   </ListPage>
-    // )
+    return (
+      <ListPage getData={this.getData} {...this.props}>
+        <Banner {...bannerProps} />
+        {this.renderContent()}
+      </ListPage>
+    )
   }
 }

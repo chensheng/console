@@ -210,6 +210,16 @@ export default class RunDetailLayout extends React.Component {
       this.enabledActions.includes(item.action)
     )
 
+    breadcrumbsLabel = branch ? (runId ? t('Activity') : t('Branch')) : t('Activity')
+    breadcrumbsUrl = branch
+      ? `${this.listUrl}/${name}/branch/${branch}/activity`
+      : `${this.listUrl}/${name}/activity`
+    const referrer = localStorage.getItem('pipeline-activity-detail-referrer')
+    if(referrer) {
+      breadcrumbsLabel = t('Back')
+      breadcrumbsUrl = referrer
+    }
+
     const sideProps = {
       name: id,
       operations,
@@ -219,10 +229,8 @@ export default class RunDetailLayout extends React.Component {
       module: this.module,
       breadcrumbs: [
         {
-          label: branch ? (runId ? t('Activity') : t('Branch')) : t('Activity'),
-          url: branch
-            ? `${this.listUrl}/${name}/branch/${branch}/activity`
-            : `${this.listUrl}/${name}/activity`,
+          label: breadcrumbsLabel,
+          url: breadcrumbsUrl,
         },
       ],
     }
