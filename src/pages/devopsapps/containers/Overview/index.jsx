@@ -90,7 +90,11 @@ class Overview extends React.Component {
           {environments.map(env => (
             <div className={styles.item}>
               <div>
-                <Link to={`/${this.workspace}/devopsapps/${this.devopsapp}/environments/${env.name}`}>{env.name}</Link>
+                <Link
+                  to={`/${this.workspace}/devopsapps/${this.devopsapp}/environments/${env.name}`}
+                >
+                  {env.name}
+                </Link>
               </div>
               <p>{t(`${env.desc}`)}</p>
             </div>

@@ -9,7 +9,13 @@ import { getLocalTime, formatUsedTime } from 'utils'
 import { trigger } from 'utils/action'
 import { getPipelineStatus } from 'utils/status'
 
-import { Button, Notify, Level, LevelLeft, LevelRight, } from '@kube-design/components'
+import {
+  Button,
+  Notify,
+  Level,
+  LevelLeft,
+  LevelRight,
+} from '@kube-design/components'
 import { Link } from 'react-router-dom'
 import { Panel } from 'components/Base'
 import Table from 'components/Tables/List'
@@ -89,11 +95,13 @@ export default class Pipeline extends React.Component {
     if (this.refreshTimer === null && this.isRuning) {
       this.refreshTimer = setInterval(() => this.refreshHandler(), 4000)
     }
-    if(prevProps.workspace !== this.props.workspace 
-      || prevProps.cluster !== this.props.cluster 
-      || prevProps.devopsName !== this.props.devopsName 
-      || prevProps.pipeline !== this.props.pipeline) {
-        this.init()
+    if (
+      prevProps.workspace !== this.props.workspace ||
+      prevProps.cluster !== this.props.cluster ||
+      prevProps.devopsName !== this.props.devopsName ||
+      prevProps.pipeline !== this.props.pipeline
+    ) {
+      this.init()
     }
   }
 
@@ -116,14 +124,14 @@ export default class Pipeline extends React.Component {
     const ruleParams = {
       cluster: this.props.cluster,
       workspace: this.props.workspace,
-      devops: this.devopsStore.devops
+      devops: this.devopsStore.devops,
     }
     await this.props.rootStore.getRules(ruleParams)
 
     this.getData()
   }
 
-  getData = (params={}) => {
+  getData = (params = {}) => {
     const query = parse(location.search.slice(1))
 
     const activitiesParams = {
@@ -131,7 +139,7 @@ export default class Pipeline extends React.Component {
       ...params,
       name: this.props.pipeline,
       devops: this.devopsStore.devops,
-      cluster: this.props.cluster
+      cluster: this.props.cluster,
     }
 
     this.store.getActivities(activitiesParams)

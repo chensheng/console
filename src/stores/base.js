@@ -182,12 +182,17 @@ export default class BaseStore {
   }
 
   @action
-  async fetchDetail(params, silent=false) {
+  async fetchDetail(params, silent = false) {
     this.isLoading = true
 
-    let result;
-    if(silent) {
-      result = await request.get(this.getDetailUrl(params), null, null, ()=>{})
+    let result
+    if (silent) {
+      result = await request.get(
+        this.getDetailUrl(params),
+        null,
+        null,
+        () => {}
+      )
     } else {
       result = await request.get(this.getDetailUrl(params))
     }

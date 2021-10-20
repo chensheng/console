@@ -72,9 +72,9 @@ class Environment extends React.Component {
     const { detail } = this.workloadStore
     const image = get(detail, 'spec.template.spec.containers[0].image')
     let currentRelease = t('None')
-    if(image && image.indexOf(':') !== -1) {
+    if (image && image.indexOf(':') !== -1) {
       const items = image.split(':')
-      currentRelease = items[items.length - 1] 
+      currentRelease = items[items.length - 1]
     }
     return currentRelease
   }
@@ -84,7 +84,9 @@ class Environment extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.match.params.environment !== this.props.match.params.environment) {
+    if (
+      prevProps.match.params.environment !== this.props.match.params.environment
+    ) {
       this.init()
     }
   }
@@ -170,14 +172,16 @@ class Environment extends React.Component {
   render() {
     const bannerProps = {
       title: t(`${this.envInfo.desc}`),
-      description: (<Tag type="primary">{`${t('Versions')}：${this.currentRelease}`}</Tag>),
+      description: (
+        <Tag type="primary">{`${t('Versions')}：${this.currentRelease}`}</Tag>
+      ),
       icon: 'cdn',
       module: this.module,
     }
 
     return (
       <div>
-        <Banner {...bannerProps}/>
+        <Banner {...bannerProps} />
         {this.renderService()}
         {this.renderPods()}
         {this.renderDevops()}
