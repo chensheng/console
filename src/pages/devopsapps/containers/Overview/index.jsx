@@ -84,7 +84,7 @@ class Overview extends React.Component {
     const { environments } = this.store.data.spec
 
     return (
-      <Panel className={styles.wrapper} title={t('环境')}>
+      <Panel className={styles.wrapper} title={t('发布环境')}>
         <div className={styles.header}>
           <Icon name="strategy-group" size={40} />
           {environments.map(env => (

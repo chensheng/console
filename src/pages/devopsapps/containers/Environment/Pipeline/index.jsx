@@ -1,49 +1,25 @@
-/*
- * This file is part of KubeSphere Console.
- * Copyright (C) 2019 The KubeSphere Console Authors.
- *
- * KubeSphere Console is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * KubeSphere Console is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with KubeSphere Console.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 import React from 'react'
 import PropTypes from 'prop-types'
-import { get, omit, debounce, isArray, isUndefined, isEmpty } from 'lodash'
-import { Link } from 'react-router-dom'
+
 import { toJS } from 'mobx'
 import { parse } from 'qs'
 import { observer, inject } from 'mobx-react'
-import {
-  Button,
-  Notify,
-  Level,
-  LevelLeft,
-  LevelRight,
-} from '@kube-design/components'
-
+import { get, omit, debounce, isArray, isUndefined, isEmpty } from 'lodash'
 import { getLocalTime, formatUsedTime } from 'utils'
-
-import Status from 'devops/components/Status'
-import { getPipelineStatus } from 'utils/status'
-import { ReactComponent as ForkIcon } from 'assets/fork.svg'
-
 import { trigger } from 'utils/action'
+import { getPipelineStatus } from 'utils/status'
+
+import { Button, Notify, Level, LevelLeft, LevelRight, } from '@kube-design/components'
+import { Link } from 'react-router-dom'
+import { Panel } from 'components/Base'
 import Table from 'components/Tables/List'
 import EmptyCard from 'devops/components/Cards/EmptyCard'
-import { Panel } from 'components/Base'
+import Status from 'devops/components/Status'
 
 import DevopsStore from 'stores/devops'
 import PipelineStore from 'stores/devops/pipelines'
+
+import { ReactComponent as ForkIcon } from 'assets/fork.svg'
 import styles from './index.scss'
 
 @inject('rootStore')
@@ -106,13 +82,18 @@ export default class Pipeline extends React.Component {
   }
 
   componentDidMount() {
-    localStorage.setItem('pipeline-activity-detail-referrer', location.pathname)
-    this.fetchDevopsData()
+    this.init()
   }
 
   componentDidUpdate(prevProps) {
     if (this.refreshTimer === null && this.isRuning) {
       this.refreshTimer = setInterval(() => this.refreshHandler(), 4000)
+    }
+    if(prevProps.workspace !== this.props.workspace 
+      || prevProps.cluster !== this.props.cluster 
+      || prevProps.devopsName !== this.props.devopsName 
+      || prevProps.pipeline !== this.props.pipeline) {
+        this.init()
     }
   }
 
@@ -121,27 +102,39 @@ export default class Pipeline extends React.Component {
     this.unsubscribe && this.unsubscribe()
   }
 
-  getData = () => {
-    const query = parse(location.search.slice(1))
-
-    const activitiesParams = {
-      ...query,
-      name: this.props.pipeline,
-      devops: this.devopsStore.devops,
-      cluster: this.props.cluster,
-    }
-
-    this.store.getActivities(activitiesParams)
-  }
-
-  fetchDevopsData = async () => {
+  init = async () => {
+    localStorage.setItem('pipeline-runs-referrer', location.pathname)
+    this.devopsStore.detail = {}
+    this.store.detail = {}
     const params = {
       workspace: this.props.workspace,
       cluster: this.props.cluster,
       name: this.props.devopsName,
     }
     await this.devopsStore.fetchDetailByName(params)
+
+    const ruleParams = {
+      cluster: this.props.cluster,
+      workspace: this.props.workspace,
+      devops: this.devopsStore.devops
+    }
+    await this.props.rootStore.getRules(ruleParams)
+
     this.getData()
+  }
+
+  getData = (params={}) => {
+    const query = parse(location.search.slice(1))
+
+    const activitiesParams = {
+      ...query,
+      ...params,
+      name: this.props.pipeline,
+      devops: this.devopsStore.devops,
+      cluster: this.props.cluster
+    }
+
+    this.store.getActivities(activitiesParams)
   }
 
   refreshHandler = () => {
@@ -183,7 +176,7 @@ export default class Pipeline extends React.Component {
   }, 500)
 
   handleFetch = (params, refresh) => {
-    this.routing.query(params, refresh)
+    this.getData(params)
   }
 
   handleReplay = record => async () => {
@@ -283,40 +276,6 @@ export default class Pipeline extends React.Component {
       ),
     },
     {
-      title: t('Commit'),
-      dataIndex: 'commitId',
-      width: '10%',
-      render: commitId => (commitId && commitId.slice(0, 6)) || '-',
-    },
-    ...(this.props.match &&
-    this.props.match.params &&
-    this.props.match.params.branch
-      ? []
-      : [
-          {
-            title: t('Branch'),
-            width: '15%',
-            key: 'branch',
-            render: record => {
-              const matchArray = get(record, '_links.self.href', '').match(
-                /\/pipelines\/\S*?(?=\/)\/branches\/(\S*?(?=\/)?)\//
-              )
-              if (isArray(matchArray)) {
-                return (
-                  <Link
-                    className="item-name"
-                    to={`${this.prefix}/branch/${record.pipeline}/activity`}
-                  >
-                    <ForkIcon style={{ width: '20px', height: '20px' }} />{' '}
-                    {decodeURIComponent(record.pipeline)}
-                  </Link>
-                )
-              }
-              return '-'
-            },
-          },
-        ]),
-    {
       title: t('Last Message'),
       dataIndex: 'causes',
       width: '25%',
@@ -369,7 +328,7 @@ export default class Pipeline extends React.Component {
           {
             type: 'control',
             key: 'run',
-            text: t('Run'),
+            text: t('Release'),
             action: 'edit',
             onClick: this.handleRunning,
           },
@@ -458,10 +417,10 @@ export default class Pipeline extends React.Component {
 
       return (
         <Panel title={t(this.props.title)}>
-          <EmptyCard desc={t('ACTIVITY_EMPTY_TIP')}>
+          <EmptyCard desc={t('No Data')}>
             {runnable && (
               <Button type="control" onClick={this.handleRunning}>
-                {t('Run Pipeline')}
+                {t('Release')}
               </Button>
             )}
           </EmptyCard>

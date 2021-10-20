@@ -48,7 +48,6 @@ class DevOpsAppListLayout extends Component {
   handleChange = url => this.routing.push(url)
 
   generateNavs = () => {
-    // debugger
     const envItems = []
     if (this.store.data.spec) {
       const { environments } = this.store.data.spec
@@ -70,7 +69,7 @@ class DevOpsAppListLayout extends Component {
           },
           {
             name: 'environments',
-            title: '应用环境',
+            title: '发布管理',
             icon: 'application',
             skipAuth: true,
             open: true,

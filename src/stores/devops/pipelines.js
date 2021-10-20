@@ -66,7 +66,7 @@ export default class PipelineStore extends BaseStore {
   activityList = {
     data: [],
     page: 1,
-    limit: 10,
+    limit: 5,
     total: 0,
     order: '',
     reverse: false,

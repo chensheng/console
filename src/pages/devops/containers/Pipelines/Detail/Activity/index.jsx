@@ -87,7 +87,7 @@ export default class Activity extends React.Component {
   componentDidMount() {
     const { params } = this.props.match
 
-    localStorage.setItem('pipeline-activity-detail-referrer', location.pathname)
+    localStorage.setItem('pipeline-runs-referrer', location.pathname)
 
     this.unsubscribe = this.routing.history.subscribe(location => {
       if (location.pathname === this.props.match.url) {

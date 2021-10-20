@@ -182,10 +182,15 @@ export default class BaseStore {
   }
 
   @action
-  async fetchDetail(params) {
+  async fetchDetail(params, silent=false) {
     this.isLoading = true
 
-    const result = await request.get(this.getDetailUrl(params))
+    let result;
+    if(silent) {
+      result = await request.get(this.getDetailUrl(params), null, null, ()=>{})
+    } else {
+      result = await request.get(this.getDetailUrl(params))
+    }
     const detail = { ...params, ...this.mapper(result) }
 
     this.detail = detail
