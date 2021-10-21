@@ -88,7 +88,7 @@ class Overview extends React.Component {
         <div className={styles.header}>
           <Icon name="strategy-group" size={40} />
           {environments.map(env => (
-            <div className={styles.item}>
+            <div className={styles.item} key={env.name}>
               <div>
                 <Link
                   to={`/${this.workspace}/devopsapps/${this.devopsapp}/environments/${env.name}`}

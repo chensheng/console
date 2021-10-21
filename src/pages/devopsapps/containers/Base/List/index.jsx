@@ -49,11 +49,13 @@ class DevOpsAppListLayout extends Component {
 
   generateNavs = () => {
     const envItems = []
+    const confItems = []
     if (this.store.data.spec) {
       const { environments } = this.store.data.spec
       environments &&
         environments.forEach(env => {
           envItems.push({ name: `environments/${env.name}`, title: env.desc })
+          confItems.push( { name: `configurations/${env.name}`, title: env.desc } )
         })
     }
 
@@ -72,9 +74,17 @@ class DevOpsAppListLayout extends Component {
             title: '发布管理',
             icon: 'application',
             skipAuth: true,
-            open: true,
+            open: false,
             children: envItems,
           },
+          {
+            name: 'configurations',
+            title: '配置中心',
+            icon: 'cogwheel',
+            skipAuth: true,
+            open: false,
+            children: confItems
+          }
         ],
       },
     ]

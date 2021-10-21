@@ -28,6 +28,7 @@ const {
   k8sResourceProxy,
   devopsWebhookProxy,
   b2iFileProxy,
+  nacosApiProxy
 } = require('./proxy')
 
 const { handleSampleData, handleDockerhubProxy } = require('./controllers/api')
@@ -80,6 +81,10 @@ router
 
   // terminal
   .get('/terminal*', renderTerminal)
+
+  // nacos
+  .use(proxy('/nacos/(.*)', nacosApiProxy))
+
   // page entry
   .all('*', renderView)
 

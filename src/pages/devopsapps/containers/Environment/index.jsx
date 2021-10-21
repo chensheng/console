@@ -172,9 +172,7 @@ class Environment extends React.Component {
   render() {
     const bannerProps = {
       title: t(`${this.envInfo.desc}`),
-      description: (
-        <Tag type="primary">{`${t('Versions')}：${this.currentRelease}`}</Tag>
-      ),
+      description: `${t('Versions')}：${this.currentRelease}`,
       icon: 'cdn',
       module: this.module,
     }

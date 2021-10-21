@@ -19,13 +19,12 @@ import {
 import { Link } from 'react-router-dom'
 import { Panel } from 'components/Base'
 import Table from 'components/Tables/List'
-import EmptyCard from 'devops/components/Cards/EmptyCard'
-import Status from 'devops/components/Status'
+import EmptyCard from 'devopsapps/components/Cards/EmptyCard'
+import Status from 'devopsapps/components/Status'
 
 import DevopsStore from 'stores/devops'
 import PipelineStore from 'stores/devops/pipelines'
 
-import { ReactComponent as ForkIcon } from 'assets/fork.svg'
 import styles from './index.scss'
 
 @inject('rootStore')

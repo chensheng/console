@@ -33,6 +33,7 @@ const cache = global._pitrixCache || new NodeCache()
 if (!global._pitrixCache) {
   global._pitrixCache = cache
 }
+const nacos_token_cache = new NodeCache({ checkperiod: 120 })
 
 const server_conf_key = 'pitrix-server-conf-key'
 
@@ -74,6 +75,8 @@ const getServerConfig = key => {
 }
 
 const getCache = () => cache
+
+const getNacosTokenCache = () => nacos_token_cache
 
 const isValidReferer = path =>
   !isEmpty(path) && path !== '/' && path.indexOf('/login') === -1
@@ -188,4 +191,5 @@ module.exports = {
   isAppsRoute,
   decryptPassword,
   safeParseJSON,
+  getNacosTokenCache
 }

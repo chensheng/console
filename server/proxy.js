@@ -17,8 +17,9 @@
  */
 
 const http = require('http')
+const syncRequest = require('sync-request')
 
-const { getServerConfig } = require('./libs/utils')
+const { getServerConfig, getNacosTokenCache } = require('./libs/utils')
 
 const { server: serverConfig } = getServerConfig()
 
@@ -85,8 +86,38 @@ const b2iFileProxy = {
   },
 }
 
+const nacosApiProxy = {
+  changeOrigin: true,
+  optionsHandle(options, req) {
+    const nacosUrl = req.headers['nacos-url']
+    if(!nacosUrl) return
+    
+    options.target = nacosUrl
+    const nacosUsername = req.headers['nacos-username']
+    const nacosPassword = req.headers['nacos-password']
+    if(!nacosUsername || !nacosPassword) return
+
+    const tokenCache = getNacosTokenCache()
+    let token = tokenCache.get(nacosUsername)
+    if(!token) {
+      const result = syncRequest('POST', `${nacosUrl}/nacos/v1/auth/login?username=${nacosUsername}&password=${nacosPassword}`)
+      if(result.statusCode === 200) {
+        const tokenInfo = JSON.parse(result.getBody('utf8'));
+        let tokenTtl = tokenInfo.tokenTtl ? (tokenInfo.tokenTtl - 600) : 60
+        token = tokenInfo.accessToken
+        tokenCache.set(nacosUsername, token, tokenTtl > 0 ? tokenTtl : 60)
+      }
+    }
+
+    req.url.indexOf('?') !== -1 ? (req.url += `&accessToken=${token}`) : (req.url += `?accessToken=${token}`)
+  },
+  events: {
+  }
+}
+
 module.exports = {
   k8sResourceProxy,
   devopsWebhookProxy,
   b2iFileProxy,
+  nacosApiProxy
 }
