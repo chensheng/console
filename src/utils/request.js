@@ -173,6 +173,9 @@ function handleResponse(response, reject) {
       }
 
       return Promise.reject(error)
+    }).catch(error => {
+      console.error(error)
+      reject&&reject(error)
     })
   }
 

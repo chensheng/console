@@ -2,17 +2,23 @@ import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { isEmpty, get } from 'lodash'
 
-import { Tag } from '@kube-design/components'
+import { Icon, Button } from '@kube-design/components'
 import { Panel } from 'components/Base'
 import Banner from 'components/Cards/Banner'
+import { CodeEditor } from 'components/Base'
 
 import NacosStore from 'stores/nacos'
 
+import styles from './index.scss'
 
 @inject('rootStore', 'devopsappStore')
 @observer
 class Configuration extends React.Component {
   nacosStore = new NacosStore()
+
+  state = {
+    showSecret: false
+  }
 
   get routing() {
     return this.props.rootStore.routing
@@ -46,8 +52,14 @@ class Configuration extends React.Component {
   }
 
   get configCenter() {
-    const { configCenter } = this.store.data.spec
-    return configCenter ? configCenter : {}
+    let configCenter = {}
+    
+    const globalConfigCenter = this.store.data.spec.configCenter
+    const envConfigCenter = this.envInfo.configCenter
+    globalConfigCenter && (configCenter = {...globalConfigCenter})
+    envConfigCenter && (configCenter = {...configCenter, ...envConfigCenter})
+    
+    return configCenter
   }
 
   get workspace() {
@@ -60,6 +72,10 @@ class Configuration extends React.Component {
 
   get namespace() {
     return `${this.envInfo.name}-${this.devopsapp}`
+  }
+
+  get nacosGroup() {
+    return 'DEFAULT_GROUP'
   }
 
   componentDidMount() {
@@ -81,10 +97,125 @@ class Configuration extends React.Component {
     const params = {
       tenant: this.environment,
       dataId: this.devopsapp,
-      group: 'DEFAULT_GROUP'
+      group: this.nacosGroup
     }
-    this.nacosStore.configContent = ''
-    this.nacosStore.fetchDetail(nacosInfo, params)
+    this.setState({showSecret: false})
+    this.nacosStore.reset()
+    this.nacosStore.fetchConfig(nacosInfo, params)
+  }
+
+  handleEdit = () => {
+    this.nacosStore.isEditing = true
+  }
+
+  handleSave = () => {
+    this.nacosStore.isEditing = false
+    const nacosInfo = {
+      url: this.configCenter.url,
+      username: this.configCenter.username,
+      password: this.configCenter.password,
+    }
+    const params = {
+      tenant: this.environment,
+      dataId: this.devopsapp,
+      group: this.nacosGroup,
+      type: 'yaml',
+      content: this.nacosStore.configContent
+    }
+    this.nacosStore.saveConfig(nacosInfo, params)
+  }
+
+  handleChange = value => {
+    this.nacosStore.configContent = value
+  }
+
+  toggleSecret = () => {
+    this.setState({
+      showSecret: !this.state.showSecret
+    })
+  }
+
+  renderBaseInfo() {
+    const { url, username, password } = this.configCenter
+    const { showSecret } = this.state
+
+    return (
+      <Panel className={styles.wrapper} title={t('连接信息')}>
+        <div className={styles.header}>
+          <Icon name="link" size={40} />
+          <div className={styles.item}>
+            <div>{url.replace('http://', '').replace('https://')}</div>
+            <p>{t('Address')}</p>
+          </div>
+          <div className={styles.item}>
+            <div>{username}</div>
+            <p>{t('Username')}</p>
+          </div>
+          <div className={styles.item}>
+            <div>{showSecret ? password : '******'}</div>
+            <p>{t('password')}</p>
+          </div>
+          <div className={styles.item} style={{display: showSecret?'block':'none'}}>
+            <div>{this.environment}</div>
+            <p>{t('tenant')}</p>
+          </div>
+          <div className={styles.item} style={{display: showSecret?'block':'none'}}>
+            <div>{this.devopsapp}</div>
+            <p>{t('dataId')}</p>
+          </div>
+          <div className={styles.item} style={{display: showSecret?'block':'none'}}>
+            <div>{this.nacosGroup}</div>
+            <p>{t('group')}</p>
+          </div>
+          <Button type="flat" icon={showSecret ? 'eye-closed': 'eye'} onClick={this.toggleSecret}/>
+        </div>
+      </Panel>
+    )
+  }
+
+  renderEditor() {
+    const { isLoading, isEditing, configContent } = this.nacosStore;
+
+    const editorOptions = {
+      readOnly: !isEditing,
+      theme: 'github',
+      showGutter: isEditing,
+      highlightActiveLine: isEditing
+    }
+
+    return (
+      <Panel title={t('配置详情')} className={styles.configWrapper} loading={isLoading}>
+        <div className={styles.codeEditor}>
+          {isEditing ? (
+            <div className={styles.ops}>
+              <Icon
+                name="check"
+                size={20}
+                clickable
+                color={{ primary: '#fff', secondary: '#fff' }}
+                onClick={this.handleSave}
+              />
+            </div>
+          ) : (
+            <div className={styles.ops}>
+              <Icon
+                name="pen"
+                size={20}
+                clickable
+                color={{ primary: '#fff', secondary: '#fff' }}
+                onClick={this.handleEdit}
+              />
+            </div>
+          )}
+          <CodeEditor
+            mode='yaml'
+            value={configContent}
+            options={editorOptions}
+            onChange={this.handleChange}
+          />
+        </div>
+      </Panel>
+    )
   }
 
   render() {
@@ -98,7 +229,8 @@ class Configuration extends React.Component {
     return (
       <div>
         <Banner {...bannerProps} />
-        <div>{this.nacosStore.configContent}</div>
+        {this.renderBaseInfo()}
+        {this.renderEditor()}
       </div>
     )
   }

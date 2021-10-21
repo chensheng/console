@@ -48,15 +48,16 @@ class DevOpsAppListLayout extends Component {
   handleChange = url => this.routing.push(url)
 
   generateNavs = () => {
-    const envItems = []
-    const confItems = []
-    if (this.store.data.spec) {
-      const { environments } = this.store.data.spec
-      environments &&
-        environments.forEach(env => {
-          envItems.push({ name: `environments/${env.name}`, title: env.desc })
-          confItems.push( { name: `configurations/${env.name}`, title: env.desc } )
-        })
+    const { spec } = this.store.data;
+
+    const envMenus = []
+    const confMenus = []
+    if (spec && spec.environments && spec.environments.length) {
+      const environments = spec.environments
+      for (let env of environments) {
+        envMenus.push({ name: `environments/${env.name}`, title: env.desc })
+        spec.configCenter && confMenus.push( { name: `configurations/${env.name}`, title: env.desc } )
+      }
     }
 
     const navs = [
@@ -69,25 +70,30 @@ class DevOpsAppListLayout extends Component {
             icon: 'dashboard',
             skipAuth: true,
           },
-          {
-            name: 'environments',
-            title: '发布管理',
-            icon: 'application',
-            skipAuth: true,
-            open: false,
-            children: envItems,
-          },
-          {
-            name: 'configurations',
-            title: '配置中心',
-            icon: 'cogwheel',
-            skipAuth: true,
-            open: false,
-            children: confItems
-          }
         ],
       },
     ]
+
+    if(envMenus.length) {
+      navs[0].items.push({
+        name: 'environments',
+        title: '发布管理',
+        icon: 'application',
+        skipAuth: true,
+        open: false,
+        children: envMenus,
+      })
+    }
+    if(confMenus.length) {
+      navs[0].items.push({
+        name: 'configurations',
+        title: '配置中心',
+        icon: 'cogwheel',
+        skipAuth: true,
+        open: false,
+        children: confMenus,
+      })
+    }
 
     return navs
   }

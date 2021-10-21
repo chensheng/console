@@ -51,3 +51,48 @@
   align-items: center;
   height: 56px;
 }
+
+.configWrapper {
+  .title {
+    display: block;
+    margin-bottom: 12px;
+
+    a {
+      color: $blue-color04;
+    }
+  }
+
+  .codeEditor {
+    position: relative;
+
+    .ops {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      height: 35px;
+      line-height: 35px;
+      width: 35px;
+      border-radius: 50%;
+      text-align: center;
+      color: $white;
+      background-color: $dark-color06;
+    }
+
+    :global {
+      .icon {
+        opacity: 0.6;
+        margin-top: -1px;
+
+        &:hover {
+          opacity: 1;
+          background-color: transparent;
+        }
+      }
+    }
+
+    .split {
+      margin: 0 8px;
+    }
+  }
+}

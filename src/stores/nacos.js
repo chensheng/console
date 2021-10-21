@@ -1,26 +1,53 @@
 import { get, set, uniq, isArray, intersection } from 'lodash'
 import { observable, action } from 'mobx'
+import { Notify } from '@kube-design/components'
 
 export default class NacosStore {
     @observable
     isLoading = false  
+
+    @observable
+    isEditing = false
     
     @observable
     configContent = ''
     
     @action
-    async fetchDetail(nacosInfo = { url, username, password }, params = { tenant, dataId, group }) {
+    async fetchConfig(nacosInfo = { url, username, password }, params = { tenant, dataId, group }) {
         this.isLoading = true
-        const url = `nacos/v1/cs/configs`
+        const url = "nacos/v1/cs/configs"
         const headers = {
             'nacos-url': nacosInfo.url,
             'nacos-username': nacosInfo.username,
             'nacos-password': nacosInfo.password
         }
         
-        const result = await request.get(url, params, {headers})
-        this.configContent = result
+        const result = await request.get(url, params, {headers}, () => {})
+        this.configContent = result ? result : ''
         this.isLoading = false
         return result
+    }
+
+    @action
+    async saveConfig(nacosInfo = { url, username, password }, params = { tenant, dataId, group, content, type }) {
+        this.isLoading = true
+        const url = "nacos/v1/cs/configs"
+        const headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'nacos-url': nacosInfo.url,
+            'nacos-username': nacosInfo.username,
+            'nacos-password': nacosInfo.password
+        }
+
+        await request.post(url, params, {headers}, (error, response) => {
+            Notify.error(t('Error Tips'), t(response.message))
+        })
+        this.isLoading = false
+    }
+
+    @action
+    reset() {
+        this.isEditing = false
+        this.configContent = ''
     }
 }
