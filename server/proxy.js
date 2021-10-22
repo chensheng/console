@@ -17,7 +17,7 @@
  */
 
 const http = require('http')
-const syncRequest = require('sync-request')
+const syncRequest = () => {}
 
 const { getServerConfig, getNacosTokenCache } = require('./libs/utils')
 
