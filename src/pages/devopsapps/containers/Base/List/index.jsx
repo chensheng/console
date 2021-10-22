@@ -22,7 +22,7 @@ import { Loading } from '@kube-design/components'
 
 import { renderRoutes } from 'utils/router.config'
 import { Nav } from 'components/Layout'
-import Selector from 'projects/components/Selector'
+import Selector from 'devopsapps/components/Selector'
 
 import styles from './index.scss'
 
@@ -110,7 +110,7 @@ class DevOpsAppListLayout extends Component {
       <div className="ks-page">
         <div className="ks-page-side">
           <Selector
-            type="devops"
+            type="devopsapps"
             title={t('DevOps应用')}
             detail={detail}
             onChange={this.handleChange}

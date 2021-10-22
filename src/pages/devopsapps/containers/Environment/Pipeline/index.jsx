@@ -435,7 +435,7 @@ export default class Pipeline extends React.Component {
       )
     }
 
-    const rowKey = get(data[0], 'time') ? 'time' : 'endTime'
+    const rowKey = get(data[0], 'run') ? 'run' : 'startTime'
 
     return (
       <Panel title={this.props.title}>

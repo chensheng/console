@@ -25,9 +25,13 @@ import { renderRoutes, getIndexRoute } from 'utils/router.config'
 import { Nav } from 'components/Layout'
 import Selector from 'workspaces/components/Selector'
 
+import DevOpsAppStore from 'stores/devopsapp'
+
 @inject('rootStore', 'workspaceStore')
 @observer
 class WorkspaceLayout extends Component {
+  devopsappStore = new DevOpsAppStore()
+
   get workspace() {
     return this.props.match.params.workspace
   }
@@ -36,8 +40,38 @@ class WorkspaceLayout extends Component {
     return this.props.rootStore.routing
   }
 
+  componentDidMount() {
+    this.devopsappStore.fetchList({workspace: this.workspace})
+  }
+
   enterWorkspace = async workspace =>
     this.routing.push(`/workspaces/${workspace}/`)
+
+  generateNavs = () => {
+    const navs = globals.app.getWorkspaceNavs(this.workspace)
+    if(!this.devopsappStore.list.total) {
+      return { navs, indexPath: this.getIndexPath(navs) }
+    }
+
+    const workspaceRoles = get(globals.user.workspaceRules, `['${this.workspace}'].roles`)
+    if(workspaceRoles && workspaceRoles.indexOf('manage') !== -1) {
+      return { navs, indexPath: this.getIndexPath(navs) }
+    }
+
+    for(let nav of navs) {
+      const filterItems = nav.items.filter(item => ["overview", "devopsapps"].indexOf(item.name) !== -1)
+      nav.items = filterItems
+    }
+    return { navs, indexPath: this.getIndexPath(navs) }
+  }
+
+  getIndexPath = (navs) => {
+    let indexPath = get(navs, '[0].items[0].name')
+    if(["overview", "devopsapps"].indexOf(indexPath) === -1) {
+      indexPath = 'devopsapps'
+    }
+    return indexPath
+  }
 
   render() {
     const {
@@ -46,8 +80,8 @@ class WorkspaceLayout extends Component {
       route: { routes = [], path },
     } = this.props
     const { detail } = this.props.workspaceStore
-    const navs = globals.app.getWorkspaceNavs(this.workspace)
-    const indexPath = get(navs, '[0].items[0].name')
+    
+    const { navs, indexPath } = this.generateNavs()
 
     return (
       <div className="ks-page">

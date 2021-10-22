@@ -81,22 +81,10 @@ export default class DevOpsApps extends React.Component {
     return this.props.match.params.workspace
   }
 
-  @computed
-  get clusters() {
-    return this.workspaceStore.clusters.data.map(item => ({
-      label: item.name,
-      value: item.name,
-      disabled: !item.isReady,
-      cluster: item,
-    }))
-  }
-
   get clusterProps() {
     return {
-      clusters: this.clusters,
-      cluster: this.workspaceStore.cluster,
-      onClusterChange: this.handleClusterChange,
-      showClusterSelect: globals.app.isMultiCluster,
+      clusters: ["default"],
+      showClusterSelect: false,
     }
   }
 
@@ -119,11 +107,6 @@ export default class DevOpsApps extends React.Component {
         },
       ],
     }
-  }
-
-  handleClusterChange = cluster => {
-    this.workspaceStore.selectCluster(cluster)
-    this.getData()
   }
 
   getData = async ({ silent, ...params } = {}) => {
@@ -217,6 +200,7 @@ export default class DevOpsApps extends React.Component {
       <ListPage {...this.props} getData={this.getData} match={matchParams}>
         <Banner
           {...bannerProps}
+          title={t('DevOps应用')}
           description={t('DEVOPS_DESCRIPTION')}
           tips={this.tips}
         />
