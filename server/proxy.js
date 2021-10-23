@@ -17,7 +17,7 @@
  */
 
 const http = require('http')
-const syncRequest = () => {}
+const request = require('request')
 
 const { getServerConfig, getNacosTokenCache } = require('./libs/utils')
 
@@ -100,15 +100,22 @@ const nacosApiProxy = {
     const tokenCache = getNacosTokenCache()
     let token = tokenCache.get(nacosUsername)
     if(!token) {
-      const result = syncRequest('POST', `${nacosUrl}/nacos/v1/auth/login?username=${nacosUsername}&password=${nacosPassword}`)
-      if(result.statusCode === 200) {
-        const tokenInfo = JSON.parse(result.getBody('utf8'));
-        let tokenTtl = tokenInfo.tokenTtl ? (tokenInfo.tokenTtl - 600) : 60
-        token = tokenInfo.accessToken
-        tokenCache.set(nacosUsername, token, tokenTtl > 0 ? tokenTtl : 60)
+      const loginUrl = `${nacosUrl}/nacos/v1/auth/login?username=${nacosUsername}&password=${nacosPassword}`
+      request.post(loginUrl, {}, (error, response, body) => {
+        if(!error && response.statusCode === 200) {
+          const tokenInfo = JSON.parse(body);
+          let tokenTtl = tokenInfo.tokenTtl ? (tokenInfo.tokenTtl - 600) : 60
+          token = tokenInfo.accessToken
+          tokenCache.set(nacosUsername, token, tokenTtl > 0 ? tokenTtl : 60)
+        }
+      })
+      const startTime = new Date().getTime()
+      while(true) {
+        token = tokenCache.get(nacosUsername)
+        if(token) break
+        if (new Date().getTime() - startTime > 3000) break
       }
     }
-
     req.url.indexOf('?') !== -1 ? (req.url += `&accessToken=${token}`) : (req.url += `?accessToken=${token}`)
   },
   events: {
