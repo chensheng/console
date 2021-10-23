@@ -16,6 +16,7 @@
  * along with KubeSphere Console.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+const { Base64 } = require('js-base64')
 const http = require('http')
 const request = require('request')
 
@@ -98,7 +99,8 @@ const nacosApiProxy = {
     if(!nacosUsername || !nacosPassword) return
 
     const tokenCache = getNacosTokenCache()
-    let token = tokenCache.get(nacosUsername)
+    const tokenKey =  Base64.encode(`${nacosUrl}@${nacosUsername}`)
+    let token = tokenCache.get(tokenKey)
     if(!token) {
       const loginUrl = `${nacosUrl}/nacos/v1/auth/login?username=${nacosUsername}&password=${nacosPassword}`
       request.post(loginUrl, {}, (error, response, body) => {
@@ -106,12 +108,12 @@ const nacosApiProxy = {
           const tokenInfo = JSON.parse(body);
           let tokenTtl = tokenInfo.tokenTtl ? (tokenInfo.tokenTtl - 600) : 60
           token = tokenInfo.accessToken
-          tokenCache.set(nacosUsername, token, tokenTtl > 0 ? tokenTtl : 60)
+          tokenCache.set(tokenKey, token, tokenTtl > 0 ? tokenTtl : 60)
         }
       })
       const startTime = new Date().getTime()
       while(true) {
-        token = tokenCache.get(nacosUsername)
+        token = tokenCache.get(tokenKey)
         if(token) break
         if (new Date().getTime() - startTime > 3000) break
       }

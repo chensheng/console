@@ -136,15 +136,16 @@ class Configuration extends React.Component {
   }
 
   renderBaseInfo() {
-    const { url, username, password } = this.configCenter
+    const { url, clusterUrl, username, password } = this.configCenter
     const { showSecret } = this.state
+    const nacosUrl = clusterUrl ? clusterUrl : url
 
     return (
       <Panel className={styles.wrapper} title={t('连接信息')}>
         <div className={styles.header}>
           <Icon name="link" size={40} />
           <div className={styles.item}>
-            <div>{url.replace('http://', '').replace('https://')}</div>
+            <div>{nacosUrl.replace('http://', '').replace('https://')}</div>
             <p>{t('Address')}</p>
           </div>
           <div className={styles.item}>
