@@ -33,6 +33,18 @@ class Overview extends React.Component {
     return this.props.match.params.workspace
   }
 
+  enableActions(env) {
+    const project = `${env.name}-${this.devopsapp}`
+    const cluster = env.cluster
+
+    return globals.app.getActions({
+      module: 'applications',
+      workspace: this.workspace,
+      project,
+      cluster
+    })
+  }
+
   renderBaseInfo() {
     const detail = this.store.data
 
@@ -42,7 +54,7 @@ class Overview extends React.Component {
           <Icon name="strategy-group" size={40} />
           <div className={styles.item}>
             <div>{getDisplayName(detail)}</div>
-            <p>{t('应用')}</p>
+            <p>{t('Application')}</p>
           </div>
           <div className={styles.item}>
             <div>
@@ -90,11 +102,11 @@ class Overview extends React.Component {
           {environments.map(env => (
             <div className={styles.item} key={env.name}>
               <div>
-                <Link
-                  to={`/${this.workspace}/devopsapps/${this.devopsapp}/environments/${env.name}`}
-                >
-                  {env.name}
-                </Link>
+                {this.enableActions(env).includes('view') ? (
+                  <Link to={`/${this.workspace}/devopsapps/${this.devopsapp}/environments/${env.name}`}>
+                    {env.name}
+                  </Link>
+                ): (<span>{env.name}</span>)}                
               </div>
               <p>{t(`${env.desc}`)}</p>
             </div>

@@ -16,7 +16,7 @@
  * along with KubeSphere Console.  If not, see <https://www.gnu.org/licenses/>.
  */
 import React, { Component } from 'react'
-import { pick, set } from 'lodash'
+import { pick, set, get  } from 'lodash'
 import { inject, observer, Provider } from 'mobx-react'
 import { Loading } from '@kube-design/components'
 
@@ -63,12 +63,20 @@ export default class Layout extends Component {
 
     await Promise.all([
       this.store.fetchDetail(params),
-      this.props.rootStore.getRules({
-        workspace: this.workspace,
-      }),
+      this.props.rootStore.getRules({ workspace: this.workspace }),
     ])
 
-    await this.props.rootStore.getRules(params)
+    const environments = get(this.store.data, "spec.environments")
+    if(environments && environments.length) {
+      for(let env of environments) {
+        const namespace = `${env.name}-${this.devopsapp}`
+        const cluster = env.cluster
+        await this.props.rootStore.getRules({
+          namespace,
+          cluster
+        })
+      }
+    }
 
     globals.app.cacheHistory(this.props.match.url, {
       type: 'DevOpsApp',

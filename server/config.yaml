@@ -466,19 +466,20 @@ client:
             - { name: roles, title: DEVOPS_PROJECT_ROLES }
             - { name: members, title: DEVOPS_PROJECT_MEMBERS }
 
-  devopsappsNavs:
+  devopsappNavs:
     - cate: ""
       items:
-        - { name: pipelines, title: Pipelines, icon: application, skipAuth: true}
-        - name: management
-          title: DEVOPS_PROJECT_MANAGEMENT
+        - { name: overview, title: Overview, icon: dashboard, skipAuth: true}
+        - name: environments
+          title: '发布管理'
+          icon: application
+          authKey: 'applications'
+          children: []
+        - name: configurations
+          title: '配置中心'
           icon: cogwheel
-          open: true
-          children:
-            - { name: base-info, title: Basic Info, skipAuth: true }
-            - { name: credentials, title: Credentials }
-            - { name: roles, title: DEVOPS_PROJECT_ROLES }
-            - { name: members, title: DEVOPS_PROJECT_MEMBERS }
+          authKey: 'applications'
+          children: []
 
   # system workspace rules control
   systemWorkspace: system-workspace

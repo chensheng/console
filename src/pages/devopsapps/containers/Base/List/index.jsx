@@ -47,64 +47,15 @@ class DevOpsAppListLayout extends Component {
 
   handleChange = url => this.routing.push(url)
 
-  generateNavs = () => {
-    const { spec } = this.store.data;
-
-    const envMenus = []
-    const confMenus = []
-    if (spec && spec.environments && spec.environments.length) {
-      const environments = spec.environments
-      for (let env of environments) {
-        envMenus.push({ name: `environments/${env.name}`, title: env.desc })
-        spec.configCenter && confMenus.push( { name: `configurations/${env.name}`, title: env.desc } )
-      }
-    }
-
-    const navs = [
-      {
-        cate: '',
-        items: [
-          {
-            name: 'overview',
-            title: '概览',
-            icon: 'dashboard',
-            skipAuth: true,
-          },
-        ],
-      },
-    ]
-
-    if(envMenus.length) {
-      navs[0].items.push({
-        name: 'environments',
-        title: '发布管理',
-        icon: 'application',
-        skipAuth: true,
-        open: false,
-        children: envMenus,
-      })
-    }
-    if(confMenus.length) {
-      navs[0].items.push({
-        name: 'configurations',
-        title: '配置中心',
-        icon: 'cogwheel',
-        skipAuth: true,
-        open: false,
-        children: confMenus,
-      })
-    }
-
-    return navs
-  }
-
   render() {
     const { match, route, location } = this.props
-    const { initializing, detail } = this.store
+    const { initializing, detail, data } = this.store
 
     if (initializing) {
       return <Loading className={styles.loading} />
     }
+
+    const navs = globals.app.getDevOpsAppNavs({workspace: this.workspace, devopsapp: this.devopsapp, data})
 
     return (
       <div className="ks-page">
@@ -118,7 +69,7 @@ class DevOpsAppListLayout extends Component {
           />
           <Nav
             className="ks-page-nav"
-            navs={this.generateNavs()}
+            navs={navs}
             location={location}
             match={match}
           />

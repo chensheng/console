@@ -37,6 +37,7 @@ export default class Pipeline extends React.Component {
     cluster: PropTypes.string,
     devopsName: PropTypes.string,
     pipeline: PropTypes.string,
+    enableActions: PropTypes.array
   }
 
   static defaultProps = {
@@ -45,6 +46,7 @@ export default class Pipeline extends React.Component {
     cluster: null,
     devopsName: null,
     pipeline: null,
+    enableActions: []
   }
 
   store = new PipelineStore()
@@ -54,11 +56,7 @@ export default class Pipeline extends React.Component {
   refreshTimer = setInterval(() => this.refreshHandler(), 4000)
 
   get enabledActions() {
-    return globals.app.getActions({
-      module: 'pipelines',
-      cluster: this.props.cluster,
-      devops: this.devopsStore.devops,
-    })
+    return this.props.enableActions
   }
 
   get isRuning() {

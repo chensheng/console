@@ -359,32 +359,36 @@ export default class GlobalValue {
     return this._cache_[`devops_${cluster}_${devops}_navs`]
   }
 
-  getDevOpsAppsNavs({ workspace, devopsapp }) {
-    // if (!get(globals.user, `devopsappsRules[${cluster}][${devops}]`)) {
-    //   return []
-    // }
+  getDevOpsAppNavs({ workspace, devopsapp,  data }) {
+    const environments = get(data, "spec.environments")
 
-    if (!this._cache_[`devopsapps_${workspace}_${devopsapp}_navs`]) {
-      const navs = []
-
-      cloneDeep(globals.config.devopsappsNavs).forEach(nav => {
-        const filteredItems = nav.items.filter(item => {
-          // item.cluster = cluster
-          return this.checkNavItem(item, params =>
-            this.hasPermission({ ...params, workspace, devopsapp })
-          )
-        })
-
-        if (!isEmpty(filteredItems)) {
-          this.checkClusterVersionRequired(filteredItems)
-          navs.push({ ...nav, items: filteredItems })
+    const navs = []
+    
+    cloneDeep(globals.config.devopsappNavs).forEach(nav => {
+      const filteredItems = nav.items.filter(item => {
+        if(item.name === 'environments' || item.name === 'configurations') {
+          const children = []
+          for(let env of environments) {
+            const cluster = env.cluster
+            const project = `${env.name}-${devopsapp}`
+            const child = { name: `${item.name}/${env.name}`, title: env.desc, authKey: 'applications', cluster }
+            if(this.checkNavItem(child, params => this.hasPermission({ ...params, workspace, cluster, project}))) {
+              children.push(child)
+            }
+          }
+          item.children = children
+          return children.length
+        } else {
+          return this.checkNavItem(item, params => this.hasPermission({ ...params, workspace }))
         }
-
-        this._cache_[`devopsapps_${workspace}_${devopsapp}_navs`] = navs
       })
-    }
-
-    return this._cache_[`devopsapps_${workspace}_${devopsapp}_navs`]
+      
+      if (!isEmpty(filteredItems)) {
+        this.checkClusterVersionRequired(filteredItems)
+        navs.push({ ...nav, items: filteredItems })
+      }
+    })
+    return navs
   }
 
   getPlatformSettingsNavs() {

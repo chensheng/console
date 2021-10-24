@@ -71,11 +71,20 @@ class Configuration extends React.Component {
   }
 
   get namespace() {
-    return `${this.envInfo.name}-${this.devopsapp}`
+    return `${this.environment}-${this.devopsapp}`
   }
 
   get nacosGroup() {
     return 'DEFAULT_GROUP'
+  }
+
+  get enableActions() {
+    return globals.app.getActions({
+      module: 'applications',
+      workspace: this.workspace,
+      project: this.namespace,
+      cluster: this.cluster
+    })
   }
 
   componentDidMount() {
@@ -174,6 +183,39 @@ class Configuration extends React.Component {
     )
   }
 
+  renderEditButton() {
+    const { isLoading, isEditing, configContent } = this.nacosStore;
+    if(!this.enableActions.includes('edit')) {
+      return <div></div>
+    }
+
+    if(isEditing) {
+      return  (
+        <div className={styles.ops}>
+          <Icon
+            name="check"
+            size={20}
+            clickable
+            color={{ primary: '#fff', secondary: '#fff' }}
+            onClick={this.handleSave}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <div className={styles.ops}>
+        <Icon
+          name="pen"
+          size={20}
+          clickable
+          color={{ primary: '#fff', secondary: '#fff' }}
+          onClick={this.handleEdit}
+        />
+       </div>
+    )
+  }
+
   renderEditor() {
     const { isLoading, isEditing, configContent } = this.nacosStore;
 
@@ -187,27 +229,7 @@ class Configuration extends React.Component {
     return (
       <Panel title={t('配置详情')} className={styles.configWrapper} loading={isLoading}>
         <div className={styles.codeEditor}>
-          {isEditing ? (
-            <div className={styles.ops}>
-              <Icon
-                name="check"
-                size={20}
-                clickable
-                color={{ primary: '#fff', secondary: '#fff' }}
-                onClick={this.handleSave}
-              />
-            </div>
-          ) : (
-            <div className={styles.ops}>
-              <Icon
-                name="pen"
-                size={20}
-                clickable
-                color={{ primary: '#fff', secondary: '#fff' }}
-                onClick={this.handleEdit}
-              />
-            </div>
-          )}
+          {this.renderEditButton()}
           <CodeEditor
             mode='yaml'
             value={configContent}

@@ -2,7 +2,6 @@ import React from 'react'
 import { observer, inject } from 'mobx-react'
 import { isEmpty, get } from 'lodash'
 
-import { Tag } from '@kube-design/components'
 import { Panel } from 'components/Base'
 import Banner from 'components/Cards/Banner'
 import PodsCard from 'components/Cards/Pods'
@@ -61,7 +60,7 @@ class Environment extends React.Component {
   }
 
   get namespace() {
-    return `${this.envInfo.name}-${this.devopsapp}`
+    return `${this.environment}-${this.devopsapp}`
   }
 
   get pipeline() {
@@ -77,6 +76,15 @@ class Environment extends React.Component {
       currentRelease = items[items.length - 1]
     }
     return currentRelease
+  }
+
+  get enableActions() {
+    return globals.app.getActions({
+      module: 'applications',
+      workspace: this.workspace,
+      project: this.namespace,
+      cluster: this.cluster
+    })
   }
 
   componentDidMount() {
@@ -165,6 +173,7 @@ class Environment extends React.Component {
         cluster={this.cluster}
         devopsName={this.devopsapp}
         pipeline={this.pipeline}
+        enableActions={this.enableActions}
       />
     )
   }
