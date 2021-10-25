@@ -53,8 +53,8 @@ class Overview extends React.Component {
         <div className={styles.header}>
           <Icon name="strategy-group" size={40} />
           <div className={styles.item}>
-            <div>{getDisplayName(detail)}</div>
-            <p>{t('Application')}</p>
+            <div>{detail.spec.mode}</div>
+            <p>{t('Application Type')}</p>
           </div>
           <div className={styles.item}>
             <div>
@@ -122,9 +122,8 @@ class Overview extends React.Component {
     return (
       <div>
         <Banner
-          title={t('DevOps Basic Info')}
+          title={getDisplayName(data)}
           icon="cdn"
-          description={t('DEVOPS_DESCRIPTION')}
           module={this.module}
         />
         {this.renderBaseInfo()}

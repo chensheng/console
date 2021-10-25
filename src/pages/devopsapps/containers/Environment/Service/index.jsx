@@ -17,7 +17,7 @@
  */
 
 import React, { Component } from 'react'
-import { Icon, Tooltip } from '@kube-design/components'
+import { Icon } from '@kube-design/components'
 
 import { isEmpty, toLower } from 'lodash'
 
@@ -48,7 +48,7 @@ export default class Service extends Component {
               <p>
                 <strong>{this.formatServiceAddr(detail.namespace, detail.name, port)}</strong>
               </p>
-              <p>{t('服务地址')}</p>
+              <p>{t('集群内地址')}</p>
             </div>
             <Icon name="pod" size={40} />
             <div className={styles.port}>

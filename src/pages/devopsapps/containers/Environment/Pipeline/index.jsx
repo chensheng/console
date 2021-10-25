@@ -37,7 +37,8 @@ export default class Pipeline extends React.Component {
     cluster: PropTypes.string,
     devopsName: PropTypes.string,
     pipeline: PropTypes.string,
-    enableActions: PropTypes.array
+    enableActions: PropTypes.array,
+    extraParams : PropTypes.array
   }
 
   static defaultProps = {
@@ -46,7 +47,8 @@ export default class Pipeline extends React.Component {
     cluster: null,
     devopsName: null,
     pipeline: null,
-    enableActions: []
+    enableActions: [],
+    extraParams: []
   }
 
   store = new PipelineStore()
@@ -168,6 +170,7 @@ export default class Pipeline extends React.Component {
         params,
         branches: toJS(detail.branchNames),
         parameters: toJS(detail.parameters),
+        extraParams: this.props.extraParams,
         success: () => {
           Notify.success({ content: `${t('Run Start')}` })
           this.handleFetch()
