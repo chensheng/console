@@ -480,6 +480,11 @@ client:
           icon: cogwheel
           authKey: 'applications'
           children: []
+        - name: dependencies
+          title: '依赖组件'
+          icon: blockchain
+          authKey: 'applications'
+          children: []
 
   # system workspace rules control
   systemWorkspace: system-workspace

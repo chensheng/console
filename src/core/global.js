@@ -366,7 +366,7 @@ export default class GlobalValue {
     
     cloneDeep(globals.config.devopsappNavs).forEach(nav => {
       const filteredItems = nav.items.filter(item => {
-        if(item.name === 'environments' || item.name === 'configurations') {
+        if(item.name === 'environments' || item.name === 'configurations' || item.name === 'dependencies') {
           const children = []
           for(let env of environments) {
             const cluster = env.cluster
