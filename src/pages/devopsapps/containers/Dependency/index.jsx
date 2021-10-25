@@ -95,7 +95,7 @@ class Dependency extends React.Component {
           <Panel className={styles.wrapper} title={toUpper(dependency.category)}>
             <div className={styles.header}>
               {dependency.clusterUrl && (
-              <div className={styles.item}>
+               <div className={styles.item}>
                 <div>{dependency.clusterUrl }</div>
                 <p>{t('内部地址')}</p>
               </div>)}
@@ -104,17 +104,17 @@ class Dependency extends React.Component {
                 <div>{dependency.url}</div>
                 <p>{t('外部地址')}</p>
               </div>)}
-              {dependency.username && (
+              {showSecret && dependency.username && (
               <div className={styles.item}>
                 <div>{dependency.username}</div>
                 <p>{t('Username')}</p>
               </div>)}
-              {dependency.password && (
+              {showSecret && dependency.password && (
               <div className={styles.item}>
                 <div>{showSecret ? dependency.password : '******'}</div>
                 <p>{t('password')}</p>
               </div>)}
-              <Button type="flat" icon={showSecret ? 'eye-closed': 'eye'} onClick={this.toggleSecret}/>
+              <Button type="flat" size="large" icon={showSecret ? 'eye-closed': 'eye'} onClick={this.toggleSecret}/>
             </div>
           </Panel>)
         )}
