@@ -463,7 +463,7 @@ module.exports = {
     'please confirm that the modified content is correct, you can save the settings or cancel the settings.',
 
   KS_DESCRIPTION:
-    'KubeSphere is an open source project aiming to provide enterprise-grade multi-tenant container platform on top of Kubernetes, the current mainstream container orchestration platform. It provides easy-to-use interface and wizard-style operations, reducing the learning curve and operating cost of Kubernetes in terms of the daily work of development, test and maintenance.',
+    'TCT-CLOUD based on KubeSphere, aiming to provide enterprise-grade multi-tenant container platform on top of Kubernetes, the current mainstream container orchestration platform. It provides easy-to-use interface and wizard-style operations, reducing the learning curve and operating cost of Kubernetes in terms of the daily work of development, test and maintenance.',
 
   REPS_ADDRESS: 'GitHub',
   ISSUE_FEEDBACK: 'Feedback',
@@ -486,7 +486,7 @@ module.exports = {
 
   'rules text': 'How to define operational audit collection rules?',
   'rules desc':
-    'KubeSphere can collect operation audits according to the rules you set. Click to see how to define the rules.',
+    'TCT-CLOUD can collect operation audits according to the rules you set. Click to see how to define the rules.',
 
   EVENT_CREATE_DESC: 'You can change the search criteria and search again.',
 
@@ -538,9 +538,9 @@ module.exports = {
   NO_HISTORY_DESC:
     'You can try to access resources, such as workspaces, clusters or projects.',
 
-  USER_GUIDES_DESC: 'The most comprehensive user guide of KubeSphere.',
+  USER_GUIDES_DESC: 'The most comprehensive user guide of TCT-CLOUD.',
   DEVELOPER_DESC: 'Raise a question in the developer community to get help.',
-  API_DOCS_DESC: 'The most comprehensive KubeSphere API documentation.',
+  API_DOCS_DESC: 'The most comprehensive TCT-CLOUD API documentation.',
   GITHUB_ISSUES_DESC: 'Raise an issue in GitHub to get help.',
 
   CREATE_BY_YAML_DESC: 'Define the resources you want to create through YAML.',
