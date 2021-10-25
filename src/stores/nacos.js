@@ -22,7 +22,9 @@ export default class NacosStore {
             'nacos-password': nacosInfo.password
         }
         
-        const result = await request.get(url, params, {headers}, () => {})
+        const result = await request.get(url, params, {headers}, (error) => {
+            Notify.error(t('Error Tips'), t(error.message))
+        })
         this.configContent = result ? result : ''
         this.isLoading = false
         return result
@@ -39,8 +41,8 @@ export default class NacosStore {
             'nacos-password': nacosInfo.password
         }
 
-        await request.post(url, params, {headers}, (error, response) => {
-            Notify.error(t('Error Tips'), t(response.message))
+        await request.post(url, params, {headers}, (error) => {
+            Notify.error(t('Error Tips'), t(error.message))
         })
         this.isLoading = false
     }
