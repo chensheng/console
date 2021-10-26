@@ -210,14 +210,8 @@ export default class RunDetailLayout extends React.Component {
       this.enabledActions.includes(item.action)
     )
 
-    breadcrumbsLabel = branch
-      ? runId
-        ? t('Activity')
-        : t('Branch')
-      : t('Activity')
-    breadcrumbsUrl = branch
-      ? `${this.listUrl}/${name}/branch/${branch}/activity`
-      : `${this.listUrl}/${name}/activity`
+    let breadcrumbsLabel = branch ? (runId ? t('Activity') : t('Branch')) : t('Activity')
+    let breadcrumbsUrl = branch ? `${this.listUrl}/${name}/branch/${branch}/activity` : `${this.listUrl}/${name}/activity`
     const referrer = localStorage.getItem('pipeline-runs-referrer')
     if (referrer) {
       breadcrumbsLabel = t('Back')
