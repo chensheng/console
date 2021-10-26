@@ -107,7 +107,7 @@ class Dependency extends React.Component {
               {dependency.database && (
               <div className={styles.item}>
                 <div>{dependency.database}</div>
-                <p>{t('databse')}</p>
+                <p>{t('数据库')}</p>
               </div>)}
               {showSecret && dependency.username && (
               <div className={styles.item}>
