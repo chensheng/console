@@ -18,22 +18,50 @@
 
 import React, { Component } from 'react'
 import { Icon } from '@kube-design/components'
+import { observer } from 'mobx-react'
 
 import { isEmpty, toLower } from 'lodash'
+import { joinSelector } from 'utils'
+
+import PodStore from 'stores/pod'
 
 import styles from './index.scss'
 
+@observer
 export default class Service extends Component {
+  podStore = new PodStore()
 
-  formatServiceAddr = (namespace, serviceName, portInfo) => {
-    const protocol = (portInfo.name.indexOf('-') !== -1) ? toLower(portInfo.name.split('-')[0]) : 'http'
+  componentDidMount() {
+    const { cluster, detail, workloadDetail } = this.props
+    this.podStore.fetchList({
+      cluster,
+      namespace: detail.namespace,
+      ownerKind: workloadDetail.kind === 'Deployment' ? 'ReplicaSet': workloadDetail.kind,
+      limit: 1
+    })
+  }
+
+  formatInternalAddr = (namespace, serviceName, portInfo) => {
+    const protocol = this.resolveProtocol(portInfo)
     const host = `${serviceName}.${namespace}`
     const port = (portInfo.port===80 || portInfo.port===443) ? '' : `:${portInfo.port}`
     return `${protocol}://${host}${port}`
   }
 
+  formatOuternalAddr = (portInfo) => {
+    const pods = this.podStore.list.data
+    const protocol = this.resolveProtocol(portInfo)
+    const host = pods&&pods.length?pods[0].nodeIp:'<node-ip>'
+    const port = (portInfo.nodePort===80 || portInfo.nodePort===443) ? '' : `:${portInfo.nodePort}`
+    return `${protocol}://${host}${port}`
+  }
+
+  resolveProtocol = (portInfo) => {
+    return (portInfo.name.indexOf('-') !== -1) ? toLower(portInfo.name.split('-')[0]) : 'http'
+  }
+
   render() {
-    const { detail } = this.props
+    const { detail, workloadDetail } = this.props
 
     if (isEmpty(detail.ports)) {
       return null
@@ -46,10 +74,18 @@ export default class Service extends Component {
             <Icon name="dns" size={40} />
             <div className={styles.dns}>
               <p>
-                <strong>{this.formatServiceAddr(detail.namespace, detail.name, port)}</strong>
+                <strong>{this.formatInternalAddr(detail.namespace, detail.name, port)}</strong>
               </p>
-              <p>{t('集群内地址')}</p>
+              <p>{t('内部地址')}</p>
             </div>
+            {port.nodePort && (
+            <div className={styles.dns}>
+              <p>
+                <strong>{this.formatOuternalAddr(port)}</strong>
+              </p>
+              <p>{t('外部地址')}</p>
+            </div>
+            )}
             <Icon name="pod" size={40} />
             <div className={styles.port}>
               <p>

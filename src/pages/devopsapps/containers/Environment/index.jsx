@@ -138,7 +138,7 @@ class Environment extends React.Component {
         {isEmpty(detail) || isEmpty(detail.ports) ? (
           <div className={styles.empty}>{t('RESOURCE_NOT_FOUND')}</div>
         ) : (
-          <Service detail={detail} />
+          <Service cluster={this.cluster} detail={detail} workloadDetail={this.workloadStore.detail}/>
         )}
       </Panel>
     )
@@ -156,7 +156,7 @@ class Environment extends React.Component {
 
     return (
       <PodsCard
-        title={`Pods`}
+        title={`${t('Pods')} (${this.envInfo.resource.cpu}核${this.envInfo.resource.memory})`}
         prefix={`/${this.workspace}/clusters/${this.envInfo.cluster}`}
         detail={detail}
         hideHeader={true}
@@ -165,7 +165,7 @@ class Environment extends React.Component {
     )
   }
 
-  renderDevops() {
+  renderPipeline() {
     return (
       <Pipeline
         title={`发布记录`}
@@ -191,7 +191,7 @@ class Environment extends React.Component {
         <Banner {...bannerProps} />
         {this.renderService()}
         {this.renderPods()}
-        {this.renderDevops()}
+        {this.renderPipeline()}
       </div>
     )
   }
