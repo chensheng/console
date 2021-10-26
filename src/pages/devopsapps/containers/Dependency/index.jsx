@@ -104,6 +104,11 @@ class Dependency extends React.Component {
                 <div>{dependency.url}</div>
                 <p>{t('外部地址')}</p>
               </div>)}
+              {dependency.database && (
+              <div className={styles.item}>
+                <div>{dependency.database}</div>
+                <p>{t('databse')}</p>
+              </div>)}
               {showSecret && dependency.username && (
               <div className={styles.item}>
                 <div>{dependency.username}</div>
