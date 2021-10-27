@@ -167,7 +167,7 @@ class Configuration extends React.Component {
           </div>
           <div className={styles.item} style={{display: showSecret?'block':'none'}}>
             <div>{this.environment}</div>
-            <p>{t('tenant')}</p>
+            <p>{t('namespace')}</p>
           </div>
           <div className={styles.item} style={{display: showSecret?'block':'none'}}>
             <div>{this.devopsapp}</div>

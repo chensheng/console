@@ -124,6 +124,7 @@ class Overview extends React.Component {
         <Banner
           title={getDisplayName(data)}
           icon="cdn"
+          description={data.spec.desc}
           module={this.module}
         />
         {this.renderBaseInfo()}
