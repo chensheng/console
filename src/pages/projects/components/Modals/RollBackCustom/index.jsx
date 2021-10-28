@@ -119,6 +119,7 @@ export default class RollBackCustomModal extends React.Component {
   getRevisionOps = () => {
     const tagMap = {}
     const revisions = sortBy(this.revisions, item => {
+      let sortWeight = 0
       const tag = this.resolveImageTag(item)
       if(!tag || tag.indexOf('-') === -1) return sortWeight
 
