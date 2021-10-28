@@ -4,8 +4,9 @@ import { isEmpty, get } from 'lodash'
 
 import { Panel } from 'components/Base'
 import Banner from 'components/Cards/Banner'
-import PodsCard from 'components/Cards/Pods'
+//import PodsCard from 'components/Cards/Pods'
 
+import PodsCard from './PodsCard'
 import WorkloadStore from 'stores/workload'
 import ServiceStore from 'stores/service'
 import Pipeline from './Pipeline'
@@ -159,8 +160,11 @@ class Environment extends React.Component {
         title={`${t('Pods')} (${this.envInfo.resource.cpu}核${this.envInfo.resource.memory})`}
         prefix={`/${this.workspace}/clusters/${this.envInfo.cluster}`}
         detail={detail}
-        hideHeader={true}
+        hideHeader={false}
         hideFooter={true}
+        rootStore={this.props.rootStore}
+        workloadStore={this.workloadStore}
+        enableActions={this.enableActions}
       />
     )
   }

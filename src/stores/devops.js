@@ -207,7 +207,7 @@ export default class DevOpsStore extends Base {
   }
 
   async fetchDetailByName({ cluster, workspace, name}) {
-    const params = { limit: 1, page: 1, name }
+    const params = { limit: 20, page: 1, name}
 
     const result =
       (await request
@@ -217,8 +217,8 @@ export default class DevOpsStore extends Base {
     const items = Array.isArray(get(result, 'items'))
       ? get(result, 'items')
       : []
-    
-    const item = items.length?items[0]:null
+    const filterItems = items.filter(it => get(it, 'metadata.generateName') === name)
+    const item = filterItems&&filterItems.length ? filterItems[0] : null
     this.itemDetail = item
     const data = { cluster, ...this.mapper(item) }
     this.devopsName = data.name
