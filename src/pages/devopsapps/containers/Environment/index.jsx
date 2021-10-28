@@ -138,7 +138,7 @@ class Environment extends React.Component {
         {isEmpty(detail) || isEmpty(detail.ports) ? (
           <div className={styles.empty}>{t('RESOURCE_NOT_FOUND')}</div>
         ) : (
-          <Service cluster={this.cluster} detail={detail} workloadDetail={this.workloadStore.detail}/>
+          <Service cluster={this.cluster} detail={detail} workloadDetail={this.workloadStore.detail} gateway={this.envInfo.gateway}/>
         )}
       </Panel>
     )

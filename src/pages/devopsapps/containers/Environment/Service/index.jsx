@@ -78,10 +78,22 @@ export default class Service extends Component {
               </p>
               <p>{t('内部地址')}</p>
             </div>
-            {port.nodePort && (
+            {this.props.gateway && (
             <div className={styles.dns}>
               <p>
-                <strong>{this.formatOuternalAddr(port)}</strong>
+                <a target="_blank" href={this.props.gateway}>
+                  <strong>{this.props.gateway}</strong>
+                </a>
+              </p>
+              <p>{t('外部地址')}</p>
+            </div>
+            )}
+            {!this.props.gateway && port.nodePort && (
+            <div className={styles.dns}>
+              <p>
+                <a target="_blank" href={this.formatOuternalAddr(port)}>
+                  <strong>{this.formatOuternalAddr(port)}</strong>
+                </a>
               </p>
               <p>{t('外部地址')}</p>
             </div>
