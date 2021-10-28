@@ -105,7 +105,7 @@ export default class RollBackCustomModal extends React.Component {
       }
     }
   
-    return revision
+    return revision?revision:''
   }
 
   resolveImageTag = (revisionItem) => {
@@ -136,7 +136,7 @@ export default class RollBackCustomModal extends React.Component {
         label: tagMap[revision],
         value: tagMap[revision],
       }))
-      .filter(item => item.value && item.value !== this.curRevision)
+      .filter(item => item.value && item.value !== '' && item.value !== this.curRevision)
   }
 
   handleOk = () => {
