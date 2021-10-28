@@ -25,6 +25,7 @@ import { Modal } from 'components/Base'
 import CreateModal from 'components/Modals/Create'
 import RedeployModal from 'projects/components/Modals/Redeploy'
 import RollBackModal from 'projects/components/Modals/RollBack'
+import RollBackCustomModal from 'projects/components/Modals/RollBackCustom'
 import HPAModal from 'projects/components/Modals/HPA'
 import EditConfigTemplateModal from 'projects/components/Modals/ConfigTemplate'
 import EditServiceModal from 'projects/components/Modals/ServiceSetting/StatefulSet'
@@ -169,6 +170,22 @@ export default {
         },
         detail,
         modal: RollBackModal,
+        store,
+        ...props,
+      })
+    },
+  },
+  'workload.revision.rollbackCustom': {
+    on({ store, detail, success, ...props }) {
+      const modal = Modal.open({
+        onOk: data => {
+          store.rollBack({ ...detail, module: store.module }, data).then(() => {
+            Modal.close(modal)
+            success && success()
+          })
+        },
+        detail,
+        modal: RollBackCustomModal,
         store,
         ...props,
       })

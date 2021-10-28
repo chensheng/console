@@ -322,7 +322,7 @@ export default class PodsCard extends React.Component {
       text: t('Revision Rollback'),
       action: 'edit',
       onClick: () =>
-        this.trigger('workload.revision.rollback', {
+        this.trigger('workload.revision.rollbackCustom', {
           detail: this.props.detail,
           store: this.props.workloadStore,
           success: this.fetchData,
