@@ -48,14 +48,20 @@ export default class AlertingPolicy extends React.Component {
   constructor(props) {
     super(props)
 
+    this.lastSelectedEnv = localStorage.getItem(`selected-env-${this.devopsapp}`)
     this.queryParams = parse(location.search.slice(1))
     this.state = {
       type: location.search.indexOf('type=builtin') > 0 ? 'builtin' : 'custom',
-      env: this.queryParams.env ? this.queryParams.env : get(this.environments, '0.name'),
+      env: this.defaultEnv
     }
   }
 
   componentDidMount() {
+  }
+
+  get defaultEnv() {
+    if(this.lastSelectedEnv) return this.lastSelectedEnv
+    return this.queryParams.env ? this.queryParams.env : get(this.environments, '0.name')
   }
 
   get environments() {
@@ -109,6 +115,7 @@ export default class AlertingPolicy extends React.Component {
   }
 
   handleEnvChange = env => {
+    localStorage.setItem(`selected-env-${this.devopsapp}`, env)
     this.setState({
       env
     }, () => {
@@ -281,7 +288,7 @@ export default class AlertingPolicy extends React.Component {
     const { bannerProps, tableProps } = this.props
     const namespace = this.namespace
     const envs = this.environments
-    const defaultEnv = this.queryParams.env ? this.queryParams.env : get(envs, '0.name')
+    const defaultEnv = this.defaultEnv
 
     let rowKey = 'name'
     let itemActions = this.itemActions

@@ -27,12 +27,20 @@ import MessageStore from 'stores/alerting/message'
   name: 'Alerting Message',
 })
 export default class AlertingMessages extends React.Component {
-  state = {
-    type: location.search.indexOf('type=builtin') > 0 ? 'builtin' : 'custom',
-    env: get(this.environments, '0.name')
+  
+  constructor(props) {
+    super(props)
+    
+    this.lastSelectedEnv = localStorage.getItem(`selected-env-${this.devopsapp}`)
+    this.state = {
+      type: location.search.indexOf('type=builtin') > 0 ? 'builtin' : 'custom',
+      env: this.defaultEnv
+    }
   }
 
-  componentDidMount() {
+  get defaultEnv() {
+    if(this.lastSelectedEnv) return this.lastSelectedEnv
+    return get(this.environments, '0.name')
   }
 
   get environments() {
@@ -86,6 +94,7 @@ export default class AlertingMessages extends React.Component {
   }
 
   handleEnvChange = env => {
+    localStorage.setItem(`selected-env-${this.devopsapp}`, env)
     this.setState({
       env
     }, () => {
@@ -230,7 +239,7 @@ export default class AlertingMessages extends React.Component {
     const { bannerProps, tableProps } = this.props
     const namespace = this.namespace
     const envs = this.environments
-    const defaultEnv = get(envs, '0.name')
+    const defaultEnv = this.defaultEnv
 
     return (
       <ListPage {...this.props} getData={this.getData} noWatch>
