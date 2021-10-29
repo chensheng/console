@@ -329,6 +329,18 @@ export default class PodsCard extends React.Component {
         }),
     },
     {
+      key: 'editHpa',
+      icon: 'firewall',
+      text: t('Horizontal Pod Autoscaling'),
+      action: 'edit',
+      onClick: () =>
+        this.trigger('workload.hpa.edit', {
+          detail: this.props.detail,
+          store: this.props.workloadStore,
+          success: this.fetchData,
+        }),
+    },
+    {
       key: 'delete',
       icon: 'trash',
       text: t('Delete'),
