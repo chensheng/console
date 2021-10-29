@@ -4,7 +4,6 @@ import { isEmpty, get } from 'lodash'
 
 import { Panel } from 'components/Base'
 import Banner from 'components/Cards/Banner'
-//import PodsCard from 'components/Cards/Pods'
 
 import PodsCard from './PodsCard'
 import WorkloadStore from 'stores/workload'

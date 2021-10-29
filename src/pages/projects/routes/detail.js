@@ -110,7 +110,7 @@ export default PATH => [
     component: ImageBuilderDetail,
   },
   {
-    path: [`${PATH}/alert-rules/builtin/:name`, `${PATH}/alert-rules/:name`],
+    path: [`${PATH}/:devopsapp?/alert-rules/builtin/:name`, `${PATH}/:devopsapp?/alert-rules/:name`],
     component: AlertPoliciesDetail,
   },
 ]

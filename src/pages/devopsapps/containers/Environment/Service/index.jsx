@@ -21,7 +21,6 @@ import { Icon } from '@kube-design/components'
 import { observer } from 'mobx-react'
 
 import { isEmpty, toLower } from 'lodash'
-import { joinSelector } from 'utils'
 
 import PodStore from 'stores/pod'
 

@@ -60,7 +60,12 @@ export default class AlertPolicyDetail extends React.Component {
   }
 
   get listUrl() {
-    const { cluster, namespace, workspace } = this.props.match.params
+    const { cluster, namespace, workspace, devopsapp } = this.props.match.params
+    if(devopsapp) {
+      const env = namespace.replace(`-${devopsapp}`, '')
+      return `/${workspace}/devopsapps/${devopsapp}/alert-rules?env=${env}`
+    }
+
     const type = this.type
     return `${workspace ? `/${workspace}` : ''}/clusters/${cluster}${
       namespace ? `/projects/${namespace}` : ''

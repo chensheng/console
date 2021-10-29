@@ -485,6 +485,23 @@ client:
           icon: blockchain
           authKey: 'applications'
           children: []
+        - name: monitoring
+          title: Monitoring & Alerting
+          icon: monitor
+          authKey: 'applications'
+          children:
+            - {
+                name: alerts,
+                title: Alerting Messages,
+                icon: loudspeaker,
+                authKey: 'applications',
+              }
+            - {
+                name: alert-rules,
+                title: Alerting Policies,
+                icon: hammer,
+                authKey: 'applications',
+              }
 
   # system workspace rules control
   systemWorkspace: system-workspace
