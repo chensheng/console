@@ -361,6 +361,7 @@ export default class GlobalValue {
 
   getDevOpsAppNavs({ workspace, devopsapp,  data }) {
     const environments = get(data, "spec.environments")
+    const configCenter = get(data, "spec.configCenter")
 
     const navs = []
     
@@ -369,6 +370,8 @@ export default class GlobalValue {
         if(item.name === 'environments' || item.name === 'configurations' || item.name === 'dependencies') {
           const children = []
           for(let env of environments) {
+            if(item.name === 'configurations' && !configCenter) break
+            if(item.name === 'dependencies' && !env.dependencies) break
             const cluster = env.cluster
             const project = `${env.name}-${devopsapp}`
             const child = { name: `${item.name}/${env.name}`, title: env.desc, authKey: 'applications', cluster }

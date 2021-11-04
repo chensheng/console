@@ -91,8 +91,8 @@ class Dependency extends React.Component {
     return (
       <div>
         <Banner {...bannerProps} />
-        {dependencies && dependencies.map(dependency => (
-          <Panel className={styles.wrapper} title={toUpper(dependency.category)}>
+        {dependencies && dependencies.map((dependency, index) => (
+          <Panel className={styles.wrapper} title={dependency.category} key={index}>
             <div className={styles.header}>
               {dependency.clusterUrl && (
                <div className={styles.item}>

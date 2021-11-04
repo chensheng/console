@@ -170,7 +170,6 @@ export default class Pipeline extends React.Component {
         params,
         branches: toJS(detail.branchNames),
         parameters: toJS(detail.parameters),
-        extraParams: this.props.extraParams,
         success: () => {
           Notify.success({ content: `${t('Run Start')}` })
           this.handleFetch()
